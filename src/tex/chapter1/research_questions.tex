@@ -7,30 +7,30 @@ The successful understanding and transfer of knowledge gained from neuroscience 
 
 Using the Nest Modeling Language \emph{NESTML} together with the Neural Simulation Tool \emph{NEST}, users can write custom neural and synapse models with different specifications and use them in their simulation scripts by simply installing the generated and complied library of the model at the runtime. In general, there are two use cases for generating such models. The first and simple case is generating the code for simple neurons without specifying the synaptic connection of the model. The second and more complex is co-generating a neuron model and synapse together. The latter case is important as it tackles some combinatorial and performance issues. Unfortunately, \emph{NEST} can't know in advance which case must be handled, and it must be explicitly given to \emph{NESTML} to process these configurations. Apart from these cases, the user must specify the location of the model, target platform and if needed a custom template defining how to generate the \texttt{C++} code for the given models.
 
-The thesis focuses on \emph{virtually} integrating \emph{NESTML} in \emph{PyNEST} (the python interface for \emph{NEST}). This virtual integration means that we won't modify the \emph{PyNEST} module by introducing new logic or implementing new functions, but instead we intercept the interface function calls and then decide to do some processing before or after the function call or just totally ignore the function and execute it later in the script. Mathematically described, each function $f$ in \emph{PyNEST} is replaced by one of the following execution paths:
-\begin{align*} 
-f \mapsto&\enspace\emptyset\\
-f \mapsto&\enspace f \circ before \\
-f \mapsto&\enspace f \\
-f \mapsto&\enspace after \circ f \\
-f \mapsto&\enspace after \circ f \circ before\\
-f \mapsto&\enspace g:\enspace \text{\#replace the call of } f \text{ with } g \in \{before, after\}  \\
+The thesis focuses on \emph{virtually} integrating \emph{NESTML} in \emph{PyNEST} (the Python interface for \emph{NEST}). This virtual integration means that we won't modify the \emph{PyNEST} module by introducing new logic or implementing new functions, but instead we intercept the interface function calls and then decide to do some processing before or after the function call or just totally ignore the function and execute it later in the script. Mathematically described, each function $f$ in \emph{PyNEST} is replaced by one of the following execution paths:
+\begin{align*}
+    f \mapsto & \enspace\emptyset                                                                         \\
+    f \mapsto & \enspace f \circ before                                                                   \\
+    f \mapsto & \enspace f                                                                                \\
+    f \mapsto & \enspace after \circ f                                                                    \\
+    f \mapsto & \enspace after \circ f \circ before                                                       \\
+    f \mapsto & \enspace g:\enspace \text{\#replace the call of } f \text{ with } g \in \{before, after\} \\
 \end{align*}
 
 The empty set means that we intercept the function call but do nothing. The functions \texttt{before} and \texttt{after} refer to a pre-processing and post-processing steps. It is not always the case that we have to call both functions, as we may have to call either one of them or even, like depicted in the last case, we can make the call to the function $f$ make something totally different and hide this new behavior inside one of  the processing functions. Together, the interception logic with \emph{NESTML}, the \emph{JIT} mechanism should be able to control the execution of the simulation script and decide when and which models should be instantiated and make all this decisions transparent for both, the user and the simulation script.
 
-Apart from virtually extending the \emph{PyNEST} interface, we adjust the \texttt{NestKernel} infrastructure to support \emph{Vectorization} \citep{nuzman2006auto}. The approach is based on modifying the data structure representing the created neurons models to a new data structure in a \emph{vector} form. This new form supports the parallel and independent processing of neurons and compared to the current representation of neurons in the \emph{NestKernel}, it should reduce the number of cache misses \citep{ghosh1997cache} and thus we expect a speedup and performance gain during the simulation with a large network.
+Apart from virtually extending the \emph{PyNEST} interface, we adjust the \texttt{NestKernel} infrastructure to support \emph{Vectorization} \citep{nuzman2006auto}. The approach is based on modifying the data structure representing the created neurons models to a new data structure in a \emph{vector} form. This new form supports the parallel and independent processing of neurons and compared to the current representation of neurons in the \emph{NestKernel}, it should reduce the number of cache misses \citep{ghosh1997cache}, and thus we expect a speedup and performance gain during the simulation with a large network.
 
 \section{Task Description}
 My main task in the thesis is to implement a wrapper around \emph{PyNEST} to support the \emph{Just-in-Time (JIT)} mechanism. They are two main requirements that must be satisfied. The first is making the \emph{JIT} implementation as an option. It means the user can explicitly disable or enable \emph{JIT}. The second requirement is having fewer changes in the simulation script when enabling the \emph{JIT} mechanism. Thus, comparing the simulation script with and without using \emph{JIT}, we should observe minimum variations in the code.
 
-The second challenge is extending the architecture of the \emph{NestKernel} to support a data structure of neurons in a vector form. we refer to this new architecture as \emph{Vectorization}, and it should make use of \emph{single instruction, multiple data} execution and, depending on the used models, it may reduce the number of cache misses and thus gain more speedup.
+The second challenge is extending the architecture of the \emph{NestKernel} to support a data structure of neurons in a vector form. We refer to this new architecture as \emph{Vectorization}, and it should make use of \emph{single instruction, multiple data} execution and, depending on the used models, it may reduce the number of cache misses and thus gain more speedup.
 \section{Thesis Outline}
 
 
 In \autoref{chap:funds}, we introduce \emph{PyNEST} and the \emph{NestKernel} with the focus on the major components involved in supporting both the \emph{JIT} and \emph{Vectorization} implementations.
 
-\autoref{chap:jit} dives deep into understanding the requirements of the \emph{JIT} mechanism, explaining the chosen solution and comparing it with different possible approaches. Having the suggested solution explained, we point out to the design and implementation decisions. finally, we illustrate an example how to enable \emph{JIT} in the simulation script and discuss the few changes that must be applied to the script.
+\autoref{chap:jit} dives deep into understanding the requirements of the \emph{JIT} mechanism, explaining the chosen solution and comparing it with different possible approaches. Having the suggested solution explained, we point out to the design and implementation decisions. Finally, we illustrate an example how to enable \emph{JIT} in the simulation script and discuss the few changes that must be applied to the script.
 
 \autoref{chap:vec} introduces the data structure and the necessary changes in the \emph{NestKernel} to support \emph{Vectorization}. Furthermore, we discuss the wide range of optimization features that together \emph{Vectorization} and \emph{JIT} may provide.
 
