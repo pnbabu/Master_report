@@ -1,1 +1,6 @@
-target
+target/
+*.aux
+*.out
+*.log
+*.fls
+*.fdb_latexmk
