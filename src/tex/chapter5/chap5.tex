@@ -5,10 +5,10 @@
  
  As the \emph{NestKernel} does not completely utilize the new data structure behind \emph{vectorization}, we can not really make meaningful evaluation of its impact on the performance. Therefore, we only decided to compare single functions between simple and \emph{vectorized} models. Such functions are \texttt{nest.Create} and \texttt{nest.GetStatus}.
  
- From the \emph{JIT} perspective, we do not really care about the size of the network or its behave, because we only simply retrieve the model and make it available to the simulation script. In that case, any neuronal network should be fine to test with. In the first experiment, we choose a random balanced network as  described by \emph{Brunel} \cite{brunel2000dynamics}. For the second experiment with synapse, we build a network with a spike-timing dependent plasticity (STDP) synaptic type.
+ From the \emph{JIT} perspective, we do not really care about the size of the network or its behave, because we only simply retrieve the model and make it available to the simulation script. In that case, any neuronal network should be fine to test with. In the first experiment, we choose a random balanced network as  described by \emph{Brunel} \citep{brunel2000dynamics}. For the second experiment with synapse, we build a network with a spike-timing dependent plasticity (STDP) synaptic type.
  
  
- For \emph{vectorization}, we only test the \texttt{nest.Create} and \texttt{nest.GetStatus} functions by creating instances of the \emph{Izhikevich} \cite{1257420} with modifying the number of instances and the number of used threads.
+ For \emph{vectorization}, we only test the \texttt{nest.Create} and \texttt{nest.GetStatus} functions by creating instances of the \emph{Izhikevich} \citep{1257420} with modifying the number of instances and the number of used threads.
  
 \section{The JIT Module}
 
