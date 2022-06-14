@@ -9,7 +9,7 @@ In order to have a concise understanding of the \emph{JIT} mechanism and to real
 
 
 
-Mainly, the \emph{JIT} mechanism should interact with two elements, the \emph{PyNEST} python module and the simulation script. This interaction puts certain restrictions on how the \emph{JIT} should work, affecting the logic behind writing the simulation scripts and how the \emph{PyNEST} may treat certain models. Therefore, in the following, we list the most important requirements and explain them in details. We start with requirements coming from the simulation script and then those from the \emph{PyNEST} module.
+Mainly, the \emph{JIT} mechanism should interact with two elements, the \emph{PyNEST} Python module and the simulation script. This interaction puts certain restrictions on how the \emph{JIT} should work, affecting the logic behind writing the simulation scripts and how the \emph{PyNEST} may treat certain models. Therefore, in the following, we list the most important requirements and explain them in details. We start with requirements coming from the simulation script and then those from the \emph{PyNEST} module.
 
 \subsubsection*{The Simulation Script:}
 
@@ -187,7 +187,7 @@ f \mapsto&\enspace g:\enspace \text{\#replace the call of } f \text{ with } g \i
 \end{align*}
 
 
-The empty set means that we intercept the function call, but we do nothing (the function will be disabled). The functions \texttt{before} and \texttt{after} refer to a pre-processing and post-processing steps. For example, when creating instances of the model, the \texttt{before} function searches for the model and ensures that the real \texttt{nest.Create} function will be called without errors. The \texttt{after} part returns the \emph{NodeCollection} object containing the instances of the model. In this scenario, the \emph{real} \texttt{nest.Create} is called inside \texttt{before} function, and it is not really being executed directly after the \texttt{before} call. 
+The empty set means that we intercept the function call, but we do nothing (the function will be disabled). The functions \texttt{before} and \texttt{after} refer to a pre-processing and post-processing steps. For example, when creating instances of the model, the \texttt{before} function searches for the model and ensures that the real \texttt{nest.Create} function will be called without errors. The \texttt{after} function returns the \emph{NodeCollection} object containing the instances of the model. In this scenario, the \emph{real} \texttt{nest.Create} is called inside \texttt{before} function, and it is not really being executed directly after the \texttt{before} call. 
 
 One issue left concerning the \texttt{nest.Connect} call and the co-generation of the neuron and synapse pairs. Recall that the user must explicitly specify the port connecting both the neuron and the synapse, and this information is handled by the code generator. To tackle this issue and remove completely the use of the code generator in the simulation script, we extend the synapse dictionary object in the \texttt{nest.Connect} function with a new key referring to the mapping between the neuron and synapse and then the \texttt{before} function processes the dictionary and removes the inserted key and forward it to the code generator and once the co-generation finished we call the \emph{real} connect function in \emph{PyNEST}.
 

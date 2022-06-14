@@ -1,7 +1,7 @@
 \chapter{Performance}
  \label{chap:perf}
  
- The major goal of this work is to have a fully automated model generation in \emph{PyNEST} without drastically degrading the performance of the simulation script and encouraging users to use the new implemented \emph{JIT} module. In order to test the impact of the using \emph{JIT} in the simulation script, we need to test different configurations that might eventually appear when running the simulation with \emph{JIT}. Firstly, we test the neuronal network with the script explicity calling \emph{PyNESTML} module and the \texttt{nest.Install} function and  consider its running time as our base model. Secondly, we run the same neuronal network, but this time everything is controlled by the \emph{JIT} module. Thirdly, we repeat the same experiment, but this time we choose a neuronal network that includes using a custom implemented synapse.
+ The major goal of this work is to have a fully automated model generation in \emph{PyNEST} without drastically degrading the performance of the simulation script and encouraging users to use the new implemented \emph{JIT} module. In order to test the impact of the using \emph{JIT} in the simulation script, we need to test different configurations that might eventually appear when running the simulation with \emph{JIT}. Firstly, we test the neuronal network with the script explicitly calling \emph{PyNESTML} module and the \texttt{nest.Install} function and  consider its running time as our base model. Secondly, we run the same neuronal network, but this time everything is controlled by the \emph{JIT} module. Thirdly, we repeat the same experiment, but this time we choose a neuronal network that includes using a custom implemented synapse.
  
  As the \emph{NestKernel} does not completely utilize the new data structure behind \emph{vectorization}, we can not really make meaningful evaluation of its impact on the performance. Therefore, we only decided to compare single functions between simple and \emph{vectorized} models. Such functions are \texttt{nest.Create} and \texttt{nest.GetStatus}.
  
@@ -25,7 +25,7 @@ In the first experiment in testing the \emph{JIT} module, we run the \emph{Brune
 
 In the \autoref{fig:max_average_min}, we show the runtime of three possible cases. The first is when we are explicitly calling the \emph{PyNESTML} module, and it is labeled with \emph{Without\_Jit}. The second case is when running the simulation with an external model using the \emph{JIT} module, and it is labeled with \emph{Jit\_Nestml}. The last case is when using \emph{JIT} with an external library, and usually it is the result after generating the code for the \emph{nestml} model. The last case is labeled with \emph{Jit\_Lib} in the plot. In each of the three cases, we show the \emph{maximum}, \emph{average} and \emph{minimum} required to run the simulation.
 
-The first case (i.e., \emph{Without\_Jit}) has the lowest runtime, and it took on average 90 seconds to finish the simulation. In the other hand, the average runtime for the \emph{Jit\_Nestml} took around 130 seconds, and the \emph{Jit\_Lib} took around 90 seconds.  Both the first case and the last case have almost the same behavior, with the exception that the \emph{minimum} runtime for the last case was a little bit higher. This can be explained with the introduced overhead in the \emph{JIT} module, and it is most significant in the second case. All the three values of the \emph{Jit\_Nestml} are the highest among the other cases, and it can be explained by the time required for searching the model and maintaining \texttt{NodeCollectionProxy} by converting the \texttt{JitNodeCollection} to the real \texttt{NodeCollection} instances and copying the parameters from one instance to the other.
+The first case (i.e., \emph{Without\_Jit}) has the lowest runtime, and it took on average 90 seconds to finish the simulation. In the other hand, the average runtime for the \emph{Jit\_Nestml} took around 130 seconds, and the \emph{Jit\_Lib} took around 90 seconds.  Both the first case and the last case have almost the same behavior, with the exception that the \emph{minimum} runtime for the last case was a bit higher. This can be explained with the introduced overhead in the \emph{JIT} module, and it is most significant in the second case. All the three values of the \emph{Jit\_Nestml} are the highest among the other cases, and it can be explained by the time required for searching the model and maintaining \texttt{NodeCollectionProxy} by converting the \texttt{JitNodeCollection} to the real \texttt{NodeCollection} instances and copying the parameters from one instance to the other.
 
 
 \subsection*{Running The JIT Module with An external Synapse Type}
@@ -50,7 +50,7 @@ In the third plot at the bottom left of the figure, we show the average time nee
 As \emph{NestKernel} does not completely support \emph	{vectorization} yet, we restrict our tests to the direct functions involved with the vectorized the model. We tested both the \texttt{nest.Create} and \texttt{nest.GetStatus} functions. Both experiments share the same configuration, we mainly can either change the number of created nodes and keep the number of threads constant or vice-versa. The experiments are executed with a \emph{Ryzen 7 3700u} processor with four cores and eight threads.
 For the number of the nodes, we have picked \{1, 10, 30, 50,100,300,500,2000,5000,8000,1000\} and for the threads we have \{1, 2, 4, 8, 16, 32\}. Each sub-experiment is run five times, with storing the \emph{Wall} time in a \emph{csv} file containing the runtime of the \emph{vectorized} and \emph{non-vectorized} model. In each sub-experiment, we have three plots. In the first plot on the left, we show the \emph{max-average-min} runtime of the vectorized model. The middle plot shows the \emph{max-average-min} runtime of the simple \emph{non-vectorized} model. Finlay, the last plot on the most right, overlays the average runtime for both models in a single plot. The \emph{y-axis} in the first two plots shows the values after applying the \emph{logarithmic} function with base 10 on the runtime values, which were stored in microseconds, whereas the values in the last plot are only in microseconds.
 
-\subsubsection{The Create function }
+\subsubsection{The Create function}
 
 \subsubsection*{Varying the number of nodes with a constant number of threads}
 
@@ -121,7 +121,7 @@ In general, the plots between the \autoref{fig:nodes_1} and \autoref{fig:nodes_1
 \end{figure}
 }
 
-\subsubsection{The GetStatus function }
+\subsubsection{The GetStatus function}
 
 \subsubsection*{Varying the number of nodes with a constant number of threads}
 
