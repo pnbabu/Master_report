@@ -24,11 +24,16 @@
 \usepackage{subfig}
 \usepackage{parcolumns}
 \usepackage{floatpag}
-
-
-
+\usepackage{natbib}
 
 %\usepackage[colorlinks=true,linkcolor=blue]{hyperref}%
+
+\def\title{Just-in-time (JIT) compilation for the NEST Simulator to extend the boundaries of neural network sizes on HPC clusters}
+\def\author{Benelhedi, Mohamed Ayssar}
+
+\hypersetup{colorlinks=true, breaklinks=true,
+  linkcolor=black, urlcolor=black, citecolor=black,
+  pdftitle=\title, pdfauthor=\author}
 
 % new commands
 \newcommand{\source}[1]{\caption*{Source: {#1}} }
@@ -179,7 +184,7 @@
 
 %\input{src/tex/conclusion}
 
-\bibliographystyle{alpha}
+\bibliographystyle{neuralcomput_natbib}
 \addcontentsline{toc}{chapter}{Bibliography}
 \bibliography{src/bib/Literatur}
 
