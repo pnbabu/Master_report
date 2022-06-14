@@ -1,0 +1,26 @@
+%\vspace*{2cm}
+% Abstract
+%{\bf\Large Kurzfassung} \\ [1em] 
+%Eine kurze Zusammenfassung der Arbeit.
+
+\begin{abstract}
+\emph{NEST} is a simulator for large-scale networks of spiking and non-spiking neural networks \cite{nest}. It profits from both the efficiency of \texttt{C++} and the simplicity of python to simulate a network with large set of neurons and synaptic connections. Due to the simple interaction between the python interface (\emph{PyNEST} \cite{10.3389/neuro.11.012.2008}) and the \emph{NestKernel} in C++, users can easily add new models by calling the \texttt{nest.Install()} function within the python interface. These models are written in C++ and can be loaded dynamically at the runtime.
+
+Fortunately, users don't need to implement their complex models in C++, as they can use \emph{NESTML} \cite{plotnikov2016nestml} to generate the required code given their specification and compile the whole thing into a dynamic library, ready to be used by \emph{PyNest}. 
+
+\emph{NESTML} is a user-friendly, flexible and a Turing-complete domain-specific language. It simplifies the modeling process for neuroscientists, both with and without prior training in computer science. By specifying the target type, either a different hardware or new supported simulator, the user can still use the same model to generate the code for the given target without any interventions. 
+
+The process of running a simulation script in nest using an external custom model requires providing certain configurations to the \emph{NESTML} code generator. Such configurations cover the model location, model dependency with other models (i.e., custom synapse model) and target platform. Although the \emph{NESTML} code generation is completely automated, the user has to explicitly invoke the \emph{NESTML} interface for the model to be processed and compiled into an extension module for \emph{NEST}, making it usable through calling the \texttt{nest.Install()} function. 
+
+Unfortunately, both the \emph{NEST} and the generated code aren't cache friendly, and they don't fully utilize the single-instruction-multiple-data (\emph{SIMD})\cite{nuzman2006auto}{} execution to increase the performance of the simulation script and all \emph{Object}s in \emph{NestKernel} are stored as an \emph{array of structures (\emph{AoS})}, which might cause a tremendous number of cache misses depending on the size of the network in the simulation.
+
+The goal of the thesis is twofold. Firstly, we eliminate the explicit calls to the \emph{NESTML} interface in the simulation script by \emph{seamlessly} extending the \emph{PyNEST} interface without really making it depends on \emph{NESTML}. This integration allows controlling the logic workflow of the \emph{PyNEST} functions and depending on certain conditions if the model should be instantiated at the given time or delayed and only create the instance  when it is really required. This extension is called \emph{Just-in-time (JIT)} and it refers to the building of the extension module only at the point where it is needed, so instead of invoking \emph{NESTML} upfront, it will be invoked by the \emph{JIT} mechanism when the user
+instantiates the neuron (or synapse) using the \emph{PyNEST} call \texttt{nest.Create()} (or \texttt{nest.Connect()}).
+
+The second part focuses on extending the \emph{Nestkernel} to support \emph{Vectorization} by modifying the models. The model becomes the central unit for controlling the state of the nodes instances. Mainly, the vectorized model contains only attributes in the form of \emph{vectors}, and the size of these vectors is the number of instances created during the simulation from that particular model type. Vectorization is introduced in the context of \emph{modularity}, where the model should be decomposed into subcomponents and assembled together during the simulation. 
+
+\emph{Modularity} is what brings \emph{JIT} and \emph{Vectorization} together. During the simulation, by using an external models, the \emph{JIT} is responsible for assembling the components of the model and linking them together, whereas \emph{Vectorization} is responsible for making the components support vectorization and makes sure that linking the components together with the model is done efficiently.
+
+\end{abstract}
+
+\cleardoublepage

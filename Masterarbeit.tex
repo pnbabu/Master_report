@@ -1,0 +1,190 @@
+\documentclass[a4paper,11pt,twoside,openright]{report}
+
+\usepackage{graphicx}
+\usepackage[ngerman,english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{fancyvrb}
+\usepackage{courier}
+\usepackage{helvet}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{pdfpages}
+\usepackage[strict]{changepage}
+\usepackage{url}
+\usepackage{amsmath} 
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{xcolor}
+\usepackage{scrextend}
+\usepackage{todonotes}
+\setlength{\marginparwidth}{2cm}
+\usepackage{svg}
+\usepackage[font=small,labelfont=bf,margin=\parindent,tableposition=top]{caption}
+\usepackage{minted}
+\usepackage{subfig}
+\usepackage{parcolumns}
+\usepackage{floatpag}
+
+
+
+
+%\usepackage[colorlinks=true,linkcolor=blue]{hyperref}%
+
+% new commands
+\newcommand{\source}[1]{\caption*{Source: {#1}} }
+\newcommand\todolater[1]{\textcolor{red}{#1}}
+
+\pdfoptionpdfminorversion=6
+
+% \definecolor{se_dark_blue}{RGB}{0,103,166} % powerpoint
+\definecolor{se_dark_blue}{RGB}{0,96,178} % website
+% \definecolor{se_light_blue}{RGB}{119,158,201} % powerpoint
+\definecolor{se_light_blue}{RGB}{129,160,225} % website
+
+
+%% setup listings
+\usepackage{listings}
+\usepackage{xcolor}
+
+\lstset{
+    numbers=left,
+    numberstyle=\tiny,
+    numbersep=5pt,
+    xleftmargin=11pt,
+    xrightmargin=4pt,
+    frame=single,
+    aboveskip=0pt,
+    belowskip=-6pt,
+    sensitive=true,
+    float=!t,
+    breaklines=false,
+    captionpos=b,
+    tabsize=2,
+    showstringspaces=false,
+    basicstyle=\small\ttfamily,
+    morecomment=[l]{//},
+    morecomment=[s][\itshape]{/**}{*/}
+}
+
+%% defines the listings laguage named 'MontiArc' derived from the language 'Java' 
+%% adding the below listed keywords. See 
+%% ftp://ftp.tex.ac.uk/tex-archive/macros/latex/contrib/listings/listings.pdf
+%% for listings documentation
+%\lstdefinelanguage{MontiArc}[]{Java}{
+%  morekeywords={component, port, in, out, inv, package, import, connect, autoconnect}
+%}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{jit}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=jit}
+
+
+
+% Seite einrichten
+\setlength{\voffset}{-1in}
+\setlength{\hoffset}{-1in}
+
+\setlength{\topmargin}{2.5cm}		   
+\setlength{\headheight}{0cm}		   
+\setlength{\headsep}{0cm}		   
+\setlength{\oddsidemargin}{3,3cm}  % innen ein wenig mehr Rand für die Klebebindung
+\setlength{\evensidemargin}{2,7cm} % dafür außen ein wenig weniger
+\setlength{\textwidth}{15cm}		   
+\setlength{\textheight}{23,5cm}		   
+\setlength{\parindent}{0cm}
+
+\newcommand{\emptyLine}{{\LARGE ~\\}}
+
+% tikz set
+\usepackage{tikz}
+\usetikzlibrary{arrows,shapes,positioning,shadows,trees}
+\tikzset{
+  basic/.style  = {draw, text width=2cm, drop shadow, font=\sffamily, rectangle},
+  root/.style   = {basic, rounded corners=2pt, thin, align=center,
+                   fill=red!50},
+  level 2/.style = {basic, rounded corners=6pt, thin,align=center, fill=green!40,
+                   text width=8em},
+  level 3/.style = {basic, thin, align=center, fill=blue!40, text width=10.5em}
+}
+
+
+
+
+
+\begin{document}
+
+% Einrücken von Absätzen verhindern und 1.5 Zeilen Absatzabstand
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.5ex plus0.5ex minus0.5ex}
+
+\setcounter{tocdepth}{5}
+\setcounter{secnumdepth}{5}
+
+\input{src/tex/cover_de}
+%\input{src/tex/cover_en} % English cover
+
+\clearpage
+
+% Erklaerung
+
+\includepdf[pages={1},offset=-1in -1in]{versicherung.pdf}
+% \includepdf[pages={1},offset=-1in -1in]{Statutory_Declaration_in_Lieu_of_an_Oath.pdf} % English 
+
+\clearpage
+
+\input{src/tex/abstract}
+
+%\input{src/tex/aufgabenstellung}
+
+\tableofcontents
+
+\clearpage
+
+% Ab erstem Kapitel Seiten arabisch zählen
+\setcounter{page}{1}
+\pagenumbering{arabic}
+\begin{sloppypar} 
+\input{src/tex/chapter1/research_questions}
+\input{src/tex/chapter2/chap2}
+\input{src/tex/chapter3/jit_module}
+\input{src/tex/chapter4/chap4}
+\input{src/tex/chapter5/chap5}
+\input{src/tex/chapter6/chap6}
+%\input{src/tex/intro}
+%\input{src/tex/listings}
+\end{sloppypar}
+
+
+%\input{src/tex/conclusion}
+
+\bibliographystyle{alpha}
+\addcontentsline{toc}{chapter}{Bibliography}
+\bibliography{src/bib/Literatur}
+
+% Begin Anhang
+\appendix
+\input{src/tex/appendix_docu}
+
+\end{document}

@@ -1,0 +1,50 @@
+\chapter{Discussion}
+ \label{chap:disc}
+\section{Conclusion and Summary}
+
+\subsection*{JIT Module: The Wrapper}
+
+We have implemented a Wrapper around the \emph{PyNEST} python module that can intercept its function calls, and depending on specific constraints, we can either apply some pre-processing and post-processing steps before calling the function or ignore it completely. The Wrapper has a straightforward structure that renders its use simple and flexible. Each targeted function in \emph{PyNEST} has a custom implemented wrapper, and these wrappers are registered in a \emph{dictionary,} with the keys being the name of the targeted function and the values are the registered \emph{Wrapper} classes. Once the \emph{JIT} module is imported, it iterates over the \emph{PyNEST}'s functions, methods, and classes, and if one of these objects is registered in the \emph{dictionary}, then a wrapper instance is created and inserted in the \emph{JIT} module. Non-targeted objects are inserted directly without having a wrapper in between. Another main feature of the wrappers is that they are implemented independently and do not influence each other.
+
+\subsection*{JIT Module: The Lightweight Version}
+
+Since the implemented wrapper for the \texttt{nest.Create} function must search for the model, and in the worst case, the code of the models must be generated, we decided to split the code generation overhead. On the call to the \texttt{nest.Create}, the user will not need to wait for the whole code of the model to be generated, built, and installed, but instead we create a \emph{lightweight} version of the model that has only the \emph{State} and \emph{Parameter} blocks, which are only the necessary attributes needed from the model after creating the instances, and then the real code generation of the library happens in the background without blocking the execution of the wrapped \texttt{nest.Create} function. Between the \texttt{nest.Create} and \texttt{nest.Connect}, the user can modify the attributes of the lightweight version by assigning new values, being either deterministic or random.
+
+
+One drawback with this approach is that after calling \texttt{nest.Connect} or \texttt{nest.Simulate} the models will be instantiated for real, and then we need to copy the values of the attributes from the lightweight version to the real instances. Thus, we have the same amount of memory allocated twice, one in the \emph{python} level and the other in the \emph{C++} level.
+
+\subsection*{JIT Module: The NodeCollectionProxy}
+
+In order to retrieve information from the \emph{lightweigh} version and to make handling transparent and similar to the \texttt{nest.NodeCollection}, we have implemented the \texttt{JitNodeCollection} and the \texttt{NodeCollectionProxy}. The relation between these three elements may be seen as a \emph{tree-like} structure. The \texttt{NodeCollectionProxy} is the root element in the \emph{tree}. It has two children, the first one is the \texttt{JitNodeCollection} and the second one is the \texttt{NodeCollection}. The \texttt{JitNodeCollection} in the other hands has an arbitrary  number of children. If the \emph{ids} of the children of the \texttt{JitNodeCollection} build a contiguous space, and they belong to the same model, then they are represented by the \texttt{JitNode}, which represents in the context of the \emph{tree} the \emph{leaves}. The \texttt{NodeCollectionProxy}, the \texttt{JitNodeCollection} and the \texttt{JitNode} share the same \emph{interface} that implements the support of retrieving and setting the attributes of the instances and also the support for \emph{indexing} and \emph{slicing} exactly like the provided functionalities in the \texttt{nest.NodeCollection}.
+
+\subsection*{Vectorization}
+
+We have introduced a new data structure in the \emph{Nestkernel} for handling models. The new data structure is based on the \emph{structure of arrays SoA}, where instead of having $n$ an instance of the same model with $k$ attributes, we have exactly one instance  that has $k$ attributes in the form of \emph{vectors} and each of these vectors has a size of $n$. The \emph{Vectorization} of the models behaves like a container of nodes, so instead of updating the nodes separately, we can update just the exciting containers which eventually updates the states of the nodes in parallel by utilizing the efficiency of \emph{SIMD} instructions in modern processors. The \emph{Vectorization} should also decrease the amount of \emph{cache misses}, as  updating one container and due to the spatial locality of the items in the array, we can update large number of nodes without the need of requesting the data from the main memory multiple times.
+
+
+\subsection*{Performance}
+
+The performance of the \emph{JIT} module without using an external synapse model does not deviate a lot from running the simulation script without \emph{JIT}. However, when using an external custom synapse, we observe a significant difference in the performance. The difference can be explained by the overhead of running twice some steps of the code generation pipeline, maintaining the functionality of the \texttt{NodeCollectionProxy} and finally replacing the network nodes and updating their parameters.
+
+Even though the \emph{Nestkernel} does not fully support \emph{Vectorization}, we observe that the performance of the \emph{vectorized} model and the \emph{non-vectorized} model are quite similar on average.
+
+\section{Outlook}
+
+\subsection*{Modularity}
+
+We have already raised the issue regarding the duplicate memory usage between the \emph{python} and \emph{C++} side because of the \emph{lightweight} version. Another problem is in the \texttt{NodeCollectionProxy}, each change in the \texttt{nest.NodeCollection} must also be adjusted in the \texttt{NodeCollectionProxy}. Thus, maintaining the \emph{JIT} project might require a bit of overhead. To mitigate these problems, we can improve the concept of the \emph{lightweight} version and make it more flexible. The solution is to adjust the code generation pipeline and make it generate and build the library in pieces. The model may be split into two pieces. The first part contains the \emph{State} and \emph{Parameters} blocks. These blocks will be generated and built on the call the \texttt{nest.Create} function. The rest of the code can be then generated in the background and assembled with the first part when calling the \texttt{nest.Connect} or \texttt{nest.Simulate} function. Since the co-code generation of the neuron and synapse just moves variables from the synapse to the neuron, we may then generate the code of the synapse and split it into two parts. The first part includes building the moved variables in a separate library and then append them to the neuron \emph{State} block during the simulation. The second part takes care of the rest of the functionality in the synapse and making it available during the \texttt{nest.Connect} call.
+
+\subsection*{Removal of the NodeCollectionProxy}
+
+With the \emph{modularity} in play, we can completely drop the usage of the current \emph{JIT} data structures (i.e., the \texttt{NodeCollectionProxy, JitNodeCollection} and \texttt{JitNode}). The \emph{Nestkernel} infrastructure will be adjusted to support the modularity of the models and make it possible to assemble the pieces of the model at the runtime. Therefore, more sophisticated architecture of the \texttt{NodeCollection} must be designed to support modularity and make querying the model and updating their \emph{State} and \emph{Parameter} blocks possible even if the model is not fully built.
+
+
+\subsection*{Vectorization: Updating the containers not the single nodes}
+
+The \texttt{update} function and other important functionalities related to the simulation do not efficiently utilize the \emph{vectorized} models. Each of these functions handles the instances of the different models separately and does not use the created containers that represent all instances of each model. The \emph{NestKernel} must be redesigned to use the containers as the unit for the whole simulation. Instead of storing a list of instances of the \texttt{Node} class, we store instances of \texttt{VectorizedNode} as a list of containers. Each container executes then the same instruction in parallel for all the nodes it represents.
+
+\subsection*{JIT The Orchestrator}
+
+After removing the \texttt{NodeCollectionProxy} with the introduced \emph{modularity}, the \emph{JIT} module will have the only task of assembling the pieces of the model. It makes sure that the neuron model is connected with the correct synapse type without the necessity to run the code generation pipeline again to match the synapse type with the correct neuron model.
+
+\cleardoublepage
