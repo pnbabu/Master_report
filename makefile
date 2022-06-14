@@ -31,15 +31,15 @@ all: $(TARGET) warnings
 $(TARGET): $(SOURCES) $(BIB) $(PICTURES)
 	@mkdir -p ${GENDIR}
 	@echo "------------initial pdf-latex run"
-	@pdflatex -output-directory=${GENDIR} ${MAINTEX}
+	@pdflatex -shell-escape -output-directory=${GENDIR} ${MAINTEX}
 	@echo "------------Bibtex"
 	@bibtex ${GENDIR}$(MAINTEX:.tex=) 
 	@echo "------------Make index"
 	@if test -e $(TARGET:.pdf=.idx); then makeindex $(TARGET:.pdf=.idx); fi
 	@echo "------------2nd pdf-latex run"
-	@pdflatex -output-directory=${GENDIR} ${MAINTEX} 1>/dev/null
+	@pdflatex -shell-escape -output-directory=${GENDIR} ${MAINTEX} 1>/dev/null
 	@echo "------------3rd pdf-latex run"
-	@pdflatex -output-directory=${GENDIR} ${MAINTEX} 1>/dev/null
+	@pdflatex -shell-escape -output-directory=${GENDIR} ${MAINTEX} 1>/dev/null
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # delete temporary files
