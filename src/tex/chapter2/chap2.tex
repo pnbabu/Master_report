@@ -28,11 +28,11 @@ Each \emph{NESTML} neuron model is read by a parser and converted to an intermed
 Figure \ref{fig:pynestml_workflow} below summarizes the complete workflow of the code generation in \emph{PyNESTML}. The process starts by feeding the \emph{.nestml} model to the code generator pipeline. A parsing and a validation steps take place, where the model is checked if it is syntactically correct and satisfies the code generator rules. Once the checks are complete, the pipeline moves to transforming the model into an intermediate representation in order to target different platforms. The third step is then the actual code generation, which is based on a set of templates written in \emph{Jinja} providing the implementation of the model in \texttt{C++} for the desired target platform. Finally, the last step in the pipeline controls the compilation and building of the model into \texttt{C++} \emph{shared library}  that can be loaded at runtime in the \emph{NestKernel}.
 
 
-\begin{figure}[h!]
+\begin{figure}[ht!]
 \centering
 \includegraphics[width=0.8\textwidth]{src/pic/internal_workflow.png}
 \caption{An overview of the processing workflow of \emph{PyNESTML}: The process starts by feeding the \emph{NESTML} models to the code generation pipeline. The first step in the pipeline starts by parsing the models and validating its syntax. Once the first step is completed, the models are transformed from a \emph{NESTML} files to an \emph{AST} objects. The pipeline moves to the next step by transforming the \emph{AST} objects. The transformation may extend the structure of the \emph{AST} by introducing new attributes or modify the name of the current model's attributes. Finally, we have the last step in the pipeline that takes the transformed \emph{AST} object and generates the \emph{C++} code for the model by using custom defined templates. Are all steps completed without any failure, the pipeline may compile and build the library of the generated code of the model on request and make it available for the simulation.}
-\source{\url{https://nestml.readthedocs.io/en/latest}}
+%\source{\url{https://nestml.readthedocs.io/en/latest}}
 \label{fig:pynestml_workflow}
 \end{figure}
 
@@ -121,7 +121,7 @@ Finally, we have the \texttt{Simulate} function  with the time $t$ as parameter,
 Of course the \emph{PyNEST} module has other important functions to provide, like inspecting the topology of the created network, changing the number of working threads and configuring the \emph{kernel} attributes, but we are mainly interested in the above-mentioned functions that will be used in designing and implementing the architecture for the \emph{JIT} module in the following chapter.
  
  
-\vspace{0.5cm}
+
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=1\textwidth,height=1\textheight,keepaspectratio]{src/pic/The-architecture-of-PyNEST-The-lowest-level-is-the-simulation-engine-It-is-used-by.png}
