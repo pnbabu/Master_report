@@ -31,7 +31,7 @@ Figure \ref{fig:pynestml_workflow} below summarizes the complete workflow of the
 \begin{figure}[h!]
 \centering
 \includegraphics[width=0.8\textwidth]{src/pic/internal_workflow.png}
-\caption{\texttt{PyNESTML}: the code generator pipeline}
+\caption{An overview of the processing workflow of \emph{PyNESTML}: The process starts by feeding the \emph{NESTML} models to the code generation pipeline. The first step in the pipeline starts by parsing the models and validating its syntax. Once the first step is completed, the models are transformed from a \emph{NESTML} files to an \emph{AST} objects. The pipeline moves to the next step by transforming the \emph{AST} objects. The transformation may extend the structure of the \emph{AST} by introducing new attributes or modify the name of the current model's attributes. Finally, we have the last step in the pipeline that takes the transformed \emph{AST} object and generates the \emph{C++} code for the model by using custom defined templates. Are all steps completed without any failure, the pipeline may compile and build the library of the generated code of the model on request and make it available for the simulation.}
 \source{\url{https://nestml.readthedocs.io/en/latest}}
 \label{fig:pynestml_workflow}
 \end{figure}
@@ -52,7 +52,7 @@ Figure \ref{fig:layer} below depicts the three layers that are responsible for r
 \begin{figure}[h!]
 \centering
 \includegraphics[width=0.8\textwidth]{src/pic/layers.png}
-\caption{\texttt{Nest} layers}
+\caption{\emph{NEST} layers: At the top level, we have the user simulation script that imports the \emph{PyNEST} module. The \emph{PyNEST} functions represents an intermediate layer between the simulation script and the \emph{NestKernel}. They simply prepare the arguments of the command and push them onto the stack in \emph{SLI}. \emph{SLI} retrieves then the command and the arguments from the stack and call the corresponding function in the \emph{NestKernel}. The result then takes the opposite path, from the \emph{NestKernel} to the simulation script. After the completion of the command in the context of the \emph{NestKernel}, the results are pushed onto the stuck, and then \emph{SlI} comes again and removes them from the stack and make them available to the simulation script.}
 \label{fig:layer}
 \end{figure}
 
@@ -67,7 +67,7 @@ The \texttt{register\_node\_model} function checks if there exists another model
  \begin{figure}[ht!]
 \centering
 \includegraphics[width=1.2\textwidth,height=1.2\textheight,keepaspectratio]{src/pic/install_command.png}
-\caption{\texttt{SLI} installing external module }
+\caption{Installing an external module: Each generated model comes with two main \emph{CPP} files. The first is implementing the model's logic and functionalities, and the second for registering the model in the \emph{NestKernel}. The process as always starts at the simulation script level, the call to \texttt{nest.Install} with the library name as the argument to the function starts the process of registering the model. The function pushes the command name and the library onto the stack that will be processed by the \emph{SLI} routine. \emph{SLI} loaded the library and creates an instance of the \texttt{SLIModule} representing the loaded module. The instance initiates then the call to the \texttt{init} function that starts the registering workflow of the new generated model in the \emph{NestKernel}.}
 \label{fig:sli_install}
 \end{figure}
 
@@ -75,7 +75,7 @@ The \texttt{register\_node\_model} function checks if there exists another model
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=1.2\textwidth,height=1.3\textheight,keepaspectratio]{src/pic/register.png}
-\caption{\texttt{NestKernel} registering new models }
+\caption{ Registering new models in the \emph{NestKernel}: The message sequence chart depicts the interaction between the components in the \emph{NestKernel} responsible for registering new custom external models.}
 \label{fig:nestknerl_register}
 \end{figure}
 
@@ -90,7 +90,7 @@ Upon requesting the creation of $n$ nodes, the \texttt{NodeMananger} calls the \
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=1\textwidth,height=1\textheight,keepaspectratio]{src/pic/nodes_creation.png}
-\caption{\texttt{NestKernel}: registering new models }
+\caption{Creating new instances of the registered models in the \emph{NestKernel}: The message sequence chart depicts the interaction between the components in the \emph{NestKernel} responsible for creating new instances of any arbitrary registered model.}
 \label{fig:nestknerl_creation}
 \end{figure}
 
@@ -125,7 +125,10 @@ Of course the \emph{PyNEST} module has other important functions to provide, lik
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=1\textwidth,height=1\textheight,keepaspectratio]{src/pic/The-architecture-of-PyNEST-The-lowest-level-is-the-simulation-engine-It-is-used-by.png}
-\caption{The architecture of \emph{PyNest}}
+\caption{The architecture of \emph{PyNEST}: The figure is taken from \citep{epp}, and it shows the main communication levels between the user code and the \emph{NestKernel}. The lowest level is the simulation engine. It is used by
+the simulation language interpreter and by the \emph{PyNEST} low-level API. The\emph{PyNEST} high-level
+API uses the low-level API to communicate with the simulation engine. The user’s simulation
+code can use functions from \emph{PyNEST}, from Python, and from its extension modules.}
 \label{fig:pynest}
 \end{figure}
 
