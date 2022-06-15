@@ -144,3 +144,103 @@ title = {Architectures for communication between processes and software layers f
 }
 
 @ARTICLE{1257420,  author={Izhikevich, E.M.},  journal={IEEE Transactions on Neural Networks},   title={Simple model of spiking neurons},   year={2003},  volume={14},  number={6},  pages={1569-1572},  doi={10.1109/TNN.2003.820440}}
+
+@ARTICLE{Gewaltig:2007,
+AUTHOR = {Gewaltig, M.  and Diesmann, M. },
+TITLE   = {{N}{E}{S}{T} ({N}{E}ural {S}imulation {T}ool)},
+YEAR    = {2007},
+JOURNAL = {Scholarpedia},
+VOLUME  = {2},
+NUMBER  = {4},
+PAGES   = {1430},
+DOI     = {10.4249/scholarpedia.1430},
+NOTE    = {revision \#130182}
+}
+
+@ARTICLE{Gewaltig:NEST,
+  author  = {Marc-Oliver Gewaltig and Markus Diesmann},
+  title   = {NEST (NEural Simulation Tool)},
+  journal = {Scholarpedia},
+  year    = {2007},
+  volume  = {2},
+  pages   = {1430},
+  number  = {4}
+}
+
+@software{deepu_rajalekshmi_2021_5508805,
+  author       = {Deepu, Rajalekshmi and
+                  Spreizer, Sebastian and
+                  Trensch, Guido and
+                  Terhorst, Dennis and
+                  Vennemo, Stine Brekke and
+                  Mitchell, Jessica and
+                  Linssen, Charl and
+                  Mørk, Håkon and
+                  Morrison, Abigail and
+                  Eppler, Jochen Martin and
+                  Kamiji, Nilton Liuji and
+                  de Schepper, Robin and
+                  Kitayama, Itaru and
+                  Kurth, Anno and
+                  Morales-Gregorio, Aitor and
+                  Nagendra Babu, Pooja and
+                  Plesser, Hans Ekkehard},
+  title        = {NEST 3.1},
+  month        = sep,
+  year         = 2021,
+  publisher    = {Zenodo},
+  version      = {3.1},
+  doi          = {10.5281/zenodo.5508805},
+  url          = {https://doi.org/10.5281/zenodo.5508805}
+}
+
+@software{spreizer_sebastian_2022_6368024,
+  author       = {Spreizer, Sebastian and
+                  Mitchell, Jessica and
+                  Jordan, Jakob and
+                  Wybo, Willem and
+                  Kurth, Anno and
+                  Vennemo, Stine Brekke and
+                  Pronold, Jari and
+                  Trensch, Guido and
+                  Benelhedi, Mohamed Ayssar and
+                  Terhorst, Dennis and
+                  Eppler, Jochen Martin and
+                  Mørk, Håkon and
+                  Linssen, Charl and
+                  Senk, Johanna and
+                  Lober, Melissa and
+                  Morrison, Abigail and
+                  Graber, Steffen and
+                  Kunkel, Susanne and
+                  Gutzen, Robin and
+                  Plesser, Hans Ekkehard},
+  title        = {NEST 3.3},
+  month        = mar,
+  year         = 2022,
+  publisher    = {Zenodo},
+  version      = {3.2},
+  doi          = {10.5281/zenodo.6368024},
+  url          = {https://doi.org/10.5281/zenodo.6368024}
+}
+
+@ARTICLE{10.3389/fninf.2014.00023,
+  
+AUTHOR={Zaytsev, Yury and Morrison, Abigail},   
+	 
+TITLE={CyNEST: a maintainable Cython-based interface for the NEST simulator},      
+	
+JOURNAL={Frontiers in Neuroinformatics},      
+	
+VOLUME={8},      
+	
+YEAR={2014},      
+	  
+URL={https://www.frontiersin.org/article/10.3389/fninf.2014.00023},       
+	
+DOI={10.3389/fninf.2014.00023},      
+	
+ISSN={1662-5196},   
+   
+ABSTRACT={NEST is a simulator for large-scale networks of spiking point neuron models (Gewaltig and Diesmann, <xref ref-type="bibr" rid="B11">2007</xref>). Originally, simulations were controlled via the Simulation Language Interpreter (SLI), a built-in scripting facility implementing a language derived from PostScript (Adobe Systems, Inc., <xref ref-type="bibr" rid="B1">1999</xref>). The introduction of PyNEST (Eppler et al., <xref ref-type="bibr" rid="B8">2008</xref>), the Python interface for NEST, enabled users to control simulations using Python. As the majority of NEST users found PyNEST easier to use and to combine with other applications, it immediately displaced SLI as the default NEST interface. However, developing and maintaining PyNEST has become increasingly difficult over time. This is partly because adding new features requires writing low-level C++ code intermixed with calls to the Python/C API, which is unrewarding. Moreover, the Python/C API evolves with each new version of Python, which results in a proliferation of version-dependent code branches. In this contribution we present the re-implementation of PyNEST in the Cython language, a superset of Python that additionally supports the declaration of C/C++ types for variables and class attributes, and provides a convenient foreign function interface (FFI) for invoking C/C++ routines (Behnel et al., <xref ref-type="bibr" rid="B2">2011</xref>). Code generation via Cython allows the production of smaller and more maintainable bindings, including increased compatibility with all supported Python releases without additional burden for NEST developers. Furthermore, this novel approach opens up the possibility to support alternative implementations of the Python language at no cost given a functional Cython back-end for the corresponding implementation, and also enables cross-compilation of Python bindings for embedded systems and supercomputers alike.}
+}
