@@ -74,7 +74,7 @@ Finally, we have the \texttt{nest\_manager} which initiates the process of wrapp
       \draw[->] (c4.177) |- (c4\value.west);
     \end{tikzpicture}
     }
-    \caption{the \emph{JIT} module}
+    \caption{The \emph{JIT} components and subdirectories: The project is split into different subdirectories. The \emph{interfaces} folder contains the implemented folders. The \emph{models} folder contains the components responsible for managing the \emph{NESTML} models. The \emph{utils} directory is for providing tools that help with creating the models. The \emph{wraper} folder holds the implemented base \texttt{Wrapper} and its derived classes. }
     \label{fig:jit_module}
 
 \end{figure}
@@ -98,7 +98,7 @@ The \emph{Wrapper} interface as depicted in \autoref{fig:wrapper_uml} shows the 
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{src/pic/wrapper_uml.png}
-\caption{The Wrapper interface}
+\caption{The Wrapper interface: The Wrapper is the interface that controls the workflow of its derived classes. All \texttt{CustomWrapper} classes derived from the \texttt{Wrapper} may implement the \texttt{before, main} and \texttt{after} functions. The \texttt{__wrapper} function is responsible for coordinating between the three main function and calling them in sequence. The static function \texttt{get_name} specifies the target function or class in \emph{PyNEST}, and finally the other static function \texttt{wraps_one} indicates how many \texttt{Wrapper} instances should be created. Additionally, we have the \texttt{ModuleWrapper} that is responsible for creating the \texttt{CustomWrapper} instances and matching them with their target functions in \emph{PyNEST}.}
 \label{fig:wrapper_uml}
 \end{figure}
 
@@ -219,7 +219,7 @@ The \emph{Wrapper} interface on its own does not do a lot for the \emph{JIT} pro
 
 \end{tikzpicture}
 
-\caption{The Wrapper's derived classes}
+\caption{The implemented \texttt{CustomWrapper} classes derived from the \texttt{Wrapper} interface.}
 \label{fig:wrapper_derived}
 \end{figure}
 
@@ -261,11 +261,11 @@ As shown in \autoref{fig:custom_wrapper}, wrapping a new function or class in \e
 
 It is also important to know that the developer is not really required to provide an  implementation to the \texttt{before}, \texttt{main} and \texttt{after} functions. As for the default behavior of the \texttt{before} function will just return the input parameters unchanged, the \texttt{main} function calls the real \emph{PyNEST} function and finally the \texttt{after} function checks if \texttt{main} should return and just returns the same object unchanged, otherwise it does nothing.
 
-Registering an custom \emph{Wrapper} is done automatically upon importing the \emph{JIT} module in the Python script. In The \texttt{wrappers.py} file, we have the \texttt{install\_wrappers} function shown in \autoref{fig:wrapper_reg} that is responsible for iterating over all the subclasses implementing the \texttt{Wrapper} interface and inserting them in a dictionary, having as \emph{key} the target function name and as \emph{value} the derived wrapper class. The \texttt{ModuleWrapper} imports then the dictionary and iterates over its keys, comparing them with \emph{PyNEST} functions and classes. Once a match is found, the \texttt{ModuleWrapper} creates an instance of the \texttt{CustomWrapper} and extends the \emph{JIT} module with a new function or class having the same name as the one coming from the \emph{PyNEST} module. The new inserted functions or classes in \emph{JIT} are either the original ones or an instance of the \texttt{CustomWraper}.
+Registering a custom \emph{Wrapper} is done automatically upon importing the \emph{JIT} module in the Python script. In The \texttt{wrappers.py} file, we have the \texttt{install\_wrappers} function shown in \autoref{fig:wrapper_reg} that is responsible for iterating over all the subclasses implementing the \texttt{Wrapper} interface and inserting them in a dictionary, having as \emph{key} the target function name and as \emph{value} the derived wrapper class. The \texttt{ModuleWrapper} imports then the dictionary and iterates over its keys, comparing them with \emph{PyNEST} functions and classes. Once a match is found, the \texttt{ModuleWrapper} creates an instance of the \texttt{CustomWrapper} and extends the \emph{JIT} module with a new function or class having the same name as the one coming from the \emph{PyNEST} module. The new inserted functions or classes in \emph{JIT} are either the original ones or an instance of the \texttt{CustomWrapper}.
 
 \begin{figure}[ht!]
 \centering
- \begin{lstlisting}[language=Python]
+ \begin{lstlisting}[language=Python, label=lst:custom_wrapper]
 from jit.wrapper.wrapper import Wrapper
 
 class CustomWrapper(Wrapper):
@@ -300,7 +300,7 @@ class CustomWrapper(Wrapper):
 
 \end{lstlisting}
     \caption{CustomWrapper example}
-    \label{fig:custom_wrapper}
+    %\label{fig:custom_wrapper}
 \end{figure}
 
 
@@ -308,7 +308,7 @@ class CustomWrapper(Wrapper):
 
 \begin{figure}[ht!]
     \centering
-    \begin{lstlisting}[language=Python]
+    \begin{lstlisting}[language=Python, label=lst:wrapper_reg]
 def install_wrappers():
     sub_classes = Wrapper.__subclasses__()
     to_wrap = {}
@@ -321,7 +321,7 @@ def install_wrappers():
     return to_wrap
 \end{lstlisting}
     \caption{Registering Wrappers}
-    \label{fig:wrapper_reg}
+    %\label{fig:wrapper_reg}
 \end{figure}
 
 
@@ -413,7 +413,7 @@ Creating new models instances in \emph{PyNEST} is done by calling the create fun
 
 
 \end{tikzpicture}
-\caption{\texttt{NodeCollection} example with $n=10$}
+\caption{Splitting a \texttt{NodeCollection} object: The initial \texttt{NodeCollection} instance has ten items, and instead of storing all the ten items, the \texttt{NodeCollection} stores only the first and the last \emph{ids} in the collection. Splitting the \texttt{NodeCollection} into even and odd \emph{ids}, we get two \texttt{NodeCollection} object, with each has five items. The separation of \emph{ids} in each split is due to non-contiguous space between them.}
 \label{fig:node_collection}
 \end{figure}
 
@@ -511,7 +511,7 @@ Creating new models instances in \emph{PyNEST} is done by calling the create fun
 
 
 \end{tikzpicture}
-\caption{Aggregation of \texttt{NodeCollection} objects}
+\caption{Aggregation of \texttt{NodeCollection} objects: We start with two models $m_1$ and $m_2$. The first model $m_1$ has two \texttt{NodeCollection} objects pointing to it. The first collection has ten items with \emph{ids} between 1 and 10, and the second collection has only three items with \emph{ids} between 16 and 18. The second model $m_2$ has only one collection with five elements with \emph{ids} between 11 and 15. Aggregation the three \texttt{NodeCollection} instances results in a once \texttt{NodeCollection} object that handles the items as a single list but also keeps the separation between the models and their \emph{ids}. }
 \label{fig:node_collection_agg}
 \end{figure}
 
@@ -528,11 +528,11 @@ In order for the \texttt{CreateWrapper} to hide all these steps for making the m
 
 \subsection{The CreateWrapper}
 
-Due to the simple \texttt{Wrapper} interface, the \texttt{CreateWrapper} as depicted in \autoref{fig:create_wrapper} uses only the \texttt{CreateHelper} that encapsulates the logic behind the \texttt{nest.Create} function. The \texttt{CreateHelper} has a \texttt{create} function that has the same signature as the  \texttt{nest.Create}, but instead of returning a \texttt{NodeCollection} object, it returns a \texttt{NodeCollectionProxy} object. All of those steps are done in the \texttt{before} function, and the \texttt{NodeCollectionProxy} object is stored as a member object of the \texttt{CreateWrapper} class. As the \texttt{main} function is completely ignored in this context, the \texttt{before} function returns just an empty tuple and an empty dictionary. Finally, the \texttt{after} function returns the stored \texttt{NodeCollectionProxy} object, and it does nothing else.
+Due to the simple \texttt{Wrapper} interface, the \texttt{CreateWrapper} as depicted in \autoref{lst:create_wrapper} uses only the \texttt{CreateHelper} that encapsulates the logic behind the \texttt{nest.Create} function. The \texttt{CreateHelper} has a \texttt{create} function that has the same signature as the  \texttt{nest.Create}, but instead of returning a \texttt{NodeCollection} object, it returns a \texttt{NodeCollectionProxy} object. All of those steps are done in the \texttt{before} function, and the \texttt{NodeCollectionProxy} object is stored as a member object of the \texttt{CreateWrapper} class. As the \texttt{main} function is completely ignored in this context, the \texttt{before} function returns just an empty tuple and an empty dictionary. Finally, the \texttt{after} function returns the stored \texttt{NodeCollectionProxy} object, and it does nothing else.
 
 \begin{figure}[ht!]
     \centering
-    \begin{lstlisting}[language=Python, label=fig:create_wrapper]
+    \begin{lstlisting}[language=Python, label=lst:create_wrapper]
 from jit.helpers.create_helper import CreateHelper
 from jit.wrapper.wrapper import Wrapper
 
@@ -559,7 +559,7 @@ class CreateWrapper(Wrapper):
         return "nest.Create"
 \end{lstlisting}
     \caption{The \texttt{CreateWrapper}}
-    \label{fig:create_wrapper}
+    %\label{fig:create_wrapper}
 \end{figure}
 
 
@@ -567,10 +567,10 @@ class CreateWrapper(Wrapper):
 
 \subsection{The CreateHelper}
 
-The \texttt{CreateHelper} is the essential component for controlling the workflow of the \texttt{nest.Create} function. In order to understand what is really happening in each of the functions in the \autoref{fig:create_helper}, we need to understand the role of each of the import lines. The first line \emph{imports} the \texttt{ModelQuery} which responsible for finding the model and returning its \emph{handle} that knows if the model is coming from a \emph{nestml} file or from a library. The second line is for importing the \texttt{NodeCollectionProxy} that mimics the functionality of the \texttt{NodeCollection}. The \texttt{ModelManager} in the third line holds the \texttt{nest} module, with which the \texttt{CreateHelper} can call the \texttt{nest.Create} function. The fourth line contains three important elements for the \emph{JIT} to work. The \texttt{JitModel} stores information about the model, like the states and parameters and their default values. The \texttt{JitNode} is a compact contiguous representation for the created instances. It stores the name of the model, the \emph{first} and the \emph{last ids} of the instances. Finally, we have the \texttt{JitNodeCollection} which is a list of \texttt{JitNode}s. In Short, if we have a tree like, the \texttt{JitNodeCollection} will be the root, the \texttt{JitNode}s are the direct children of the root and the \texttt{JitModel}s are the leaves. The last import line is the \texttt{JitThread} which responsible for running the code generation and the building of the library in the background.
+The \texttt{CreateHelper} is the essential component for controlling the workflow of the \texttt{nest.Create} function. In order to understand what is really happening in each of the functions in the \autoref{lst:create_helper}, we need to understand the role of each of the import lines. The first line \emph{imports} the \texttt{ModelQuery} which responsible for finding the model and returning its \emph{handle} that knows if the model is coming from a \emph{nestml} file or from a library. The second line is for importing the \texttt{NodeCollectionProxy} that mimics the functionality of the \texttt{NodeCollection}. The \texttt{ModelManager} in the third line holds the \texttt{nest} module, with which the \texttt{CreateHelper} can call the \texttt{nest.Create} function. The fourth line contains three important elements for the \emph{JIT} to work. The \texttt{JitModel} stores information about the model, like the states and parameters and their default values. The \texttt{JitNode} is a compact contiguous representation for the created instances. It stores the name of the model, the \emph{first} and the \emph{last ids} of the instances. Finally, we have the \texttt{JitNodeCollection} which is a list of \texttt{JitNode}s. In Short, if we have a tree like, the \texttt{JitNodeCollection} will be the root, the \texttt{JitNode}s are the direct children of the root and the \texttt{JitModel}s are the leaves. The last import line is the \texttt{JitThread} which responsible for running the code generation and the building of the library in the background.
 \begin{figure}[ht!]
     \centering
-    \begin{lstlisting}[language=Python]
+    \begin{lstlisting}[language=Python, label=lst:create_helper]
 from jit.models.model_query import ModelQuery
 from jit.models.node_collection_proxy import NodeCollectionProxy
 from jit.models.model_manager import ModelManager
@@ -599,7 +599,7 @@ class CreateHelper:
     
 \end{lstlisting}
     \caption{The \texttt{CreateHelper}}
-    \label{fig:create_helper}
+    %\label{fig:create_helper}
 \end{figure}
 
 The explanation of the \texttt{Create} function will be left as the last function to discuss. We start with the \texttt{handle\_built\_in} method. It is the simplest case, where we just call the real create function from the \emph{PyNEST} module, and then we store the \texttt{NodeCollection} returned object in the \texttt{NodeCollectionProxy}. An important part of the \texttt{CreateHelper} is to keep the order of \emph{ids} consistent. With the help of the \texttt{ModelManager}, we can query the last assigned \emph{id} and update it with the size of the \texttt{NodeCollection}. Finaly, we store the \texttt{NodeCollectionProxy} in an array of nodeCollectionProxies in the \texttt{ModelManager}.
@@ -672,7 +672,7 @@ Finally, we have the \texttt{Create} function that calls all the above described
 
 \end{tikzpicture}
 
-    \caption{The NodeCollectionProxy design}
+    \caption{The NodeCollectionProxy design: The \texttt{NodeCollectionProxy} can be considered as a \emph{tree-like} structure and it may have at most two children. The first left child is the \texttt{JitNodeCollection} and the second right child is the \texttt{nest.NodeCollection} class. The \texttt{JitNodeCollection} has also a \emph{sub-tree} attached to it may have any arbitrary number of children. The children of the \texttt{JitNodeCollection} are instances of the \texttt{JitNode}. The \texttt{JitInterface} provides the common functionalities for retrieving the value of an item, updating it or indexing and slicing the collection. The interface is implemented by the \texttt{NodeCollection}, \texttt{JitNodeCollection} and the \texttt{JitNode}.}
     \label{fig:node_collection_proxy}
 \end{figure}
 
@@ -685,7 +685,7 @@ Since the relation between the classes is a  \emph{tree-like} relation, they all
 
 \begin{figure}[ht!]
 \centering
-\begin{lstlisting}[language=Python]
+\begin{lstlisting}[language=Python, label=lst:jit_interface]
 class JitInterface():
 
     def get_children(self):
@@ -722,7 +722,7 @@ class JitInterface():
         pass
 \end{lstlisting}
 \caption{The \texttt{JitInterface}}
-\label{fig:jit_interface}
+%\label{fig:jit_interface}
 \end{figure}
 
 
@@ -872,7 +872,7 @@ The \texttt{project\_dict} is for splitting the dictionary object into sub-dicti
 
 \end{tikzpicture}
 
-    \caption{The \texttt{NodeCollectionProxy}: from list to \emph{tree-like} structure}
+    \caption{From list to \emph{tree-like} structure: The initial \texttt{NodeCollectionProxy} has 9 items. The first 6 items are from the \texttt{JitNodeCollection} and the last 3 are from the \texttt{nest.NodeCollection}. The six items  in \texttt{JitNodeCollection} are from two different models and these instances of the models are represented by the \texttt{JitNode}. The first \texttt{JitNode} spans a contiguous space of \emph{ids} between 1 and 3. The second \texttt{JitNode} spans another contiguous space between 4 and 6.}
     \label{fig:list_to_tree}
 \end{figure}
 
@@ -945,11 +945,11 @@ For the purpose of the following demonstrations, we will use the \emph{STDP wind
 
  
 
-The first changes that  are affected by using \emph{JIT} happens at the \emph{import} level in the simulation script. As depicted in the \autoref{fig:imports_without_jit} and \autoref{fig:imports_with_jit}, we see that only the first three lines involving both the \emph{PyNEST} and the \emph{PyNESTML} modules are completely deleted and replaced with a single import call to the \texttt{nest} module from the \emph{JIT} the module. Apart from these changes, the rest of the import lines stay unchanged. 
+The first changes that  are affected by using \emph{JIT} happens at the \emph{import} level in the simulation script. As depicted in the \autoref{lst:imports_without_jit} and \autoref{lst:imports_with_jit}, we see that only the first three lines involving both the \emph{PyNEST} and the \emph{PyNESTML} modules are completely deleted and replaced with a single import call to the \texttt{nest} module from the \emph{JIT} the module. Apart from these changes, the rest of the import lines stay unchanged. 
 
 \begin{figure}[ht!]
 \centering
-\begin{lstlisting}[language=Python]
+\begin{lstlisting}[language=Python, label=lst:imports_without_jit]
 import nest
 from pynestml.frontend.pynestml_frontend import generate_nest_target
 NEST_SIMULATOR_INSTALL_LOCATION = nest.ll_api.sli_func("statusdict/prefix ::")
@@ -964,12 +964,12 @@ import re
 
 \end{lstlisting}
 \caption{The Simulation script imports without \emph{JIT}}
-\label{fig:imports_without_jit}
+%\label{fig:imports_without_jit}
 \end{figure}
 
 \begin{figure}[ht!]
 \centering
-\begin{lstlisting}[language=Python]
+\begin{lstlisting}[language=Python, label=lst:imports_with_jit]
 from jit import nest
 
 %matplotlib inline
@@ -981,14 +981,14 @@ import os
 import re
 \end{lstlisting}
 \caption{The Simulation script imports \emph{JIT}}
-\label{fig:imports_with_jit}
+%\label{fig:imports_with_jit}
 \end{figure}
 
 Secondly, in the \emph{NESTML} tutorial, we have the \texttt{generate\_code\_for} in the figure\autoref{fig:generating_code} that takes as parameter the synapse model name. The function retrieves the \emph{nestml} file for the given synapse and also the \emph{nestml} file for the \texttt{iaf\_psc\_delta} neuron model and then triggers the co-code generation for both models together providing the \texttt{post\_ports} that required for connecting the postsynaptic neuron together with the synapse. Finally, once the code generation pipeline finishes, it installs the new library, which makes the specified model available for use in the simulation script and returns the new expected name of the neuron and synapse that both have the \emph{\_\_with\_} infix. Luckily, using \emph{JIT} we can simply get rid of this huge function and let it completely take care of the models, and their new names. Even the \texttt{nest.Install} function on the line 41 will also be deleted, and only the \emph{JIT} is responsible for calling it.
 
 
 
-Finlay, we reach the part where we have to create the nodes and connect them to build the network. Both the figures \autoref{fig:build_network_with_jit} and \autoref{fig:build_network_without_jit} share the exact the code, apart from a slight difference in the line 44 when calling the \texttt{nest.Connect} function. In the figure \autoref{fig:build_network_with_jit} we add an extra key in the \texttt{syn\_spec} indicating the \emph{post connection ports} between the synapse and the post-neuron. The new key then will be removed from the \texttt{syn\_spec} dictionary and only be used in the code generation pipeline as one of the custom configurations in the \emph{codegen\_opt} in \emph{PyNESTML} module. The rest of the dictionary is then forwarded to \texttt{ConnectWrapper} to initiate the correct call to the \texttt{nest.Connect} function.
+Finlay, we reach the part where we have to create the nodes and connect them to build the network. Both the figures \autoref{lst:build_network_with_jit} and \autoref{lst:build_network_without_jit} share the exact the code, apart from a slight difference in the line 44 when calling the \texttt{nest.Connect} function. In the figure \autoref{fig:build_network_with_jit} we add an extra key in the \texttt{syn\_spec} indicating the \emph{post connection ports} between the synapse and the post-neuron. The new key then will be removed from the \texttt{syn\_spec} dictionary and only be used in the code generation pipeline as one of the custom configurations in the \emph{codegen\_opt} in \emph{PyNESTML} module. The rest of the dictionary is then forwarded to \texttt{ConnectWrapper} to initiate the correct call to the \texttt{nest.Connect} function.
 
 In short, the \emph{JIT} design and implementation does not affect the workflow of the simulation script and only slight changes are required to be adjusted without a huge intervention from the user.
 
@@ -1002,7 +1002,7 @@ Two major drawbacks in the implemented solution, that the assigned values to the
 \begin{figure}[ht!]
 \caption{The code-generation phase}
 \thisfloatpagestyle{empty} 
-\begin{lstlisting}[language=Python]
+\begin{lstlisting}[language=Python, label=lst:generating_code]
 n_modules_generated = 0
 def generate_code_for(nestml_synapse_model: str):
     """Generate code for a given synapse model, passed as a string, in combination with
@@ -1053,7 +1053,7 @@ def generate_code_for(nestml_synapse_model: str):
     return mangled_neuron_name, mangled_synapse_name
 \end{lstlisting}
 
-\label{fig:generating_code}
+%\label{fig:generating_code}
 \end{figure}
 
 \clearpage
@@ -1062,7 +1062,7 @@ def generate_code_for(nestml_synapse_model: str):
 \begin{figure}[ht!]
 \centering
 \caption{Creating the network without \emph{JIT}}
-\begin{lstlisting}[language=Python]
+\begin{lstlisting}[language=Python, label=lst:build_network_without_jit]
 def run_network(pre_spike_time, post_spike_time,
                           neuron_model_name,
                           synapse_model_name,
@@ -1118,7 +1118,7 @@ def run_network(pre_spike_time, post_spike_time,
     ...
 
 \end{lstlisting}
-\label{fig:build_network_without_jit}
+%\label{fig:build_network_without_jit}
 \end{figure}
 
 \clearpage
@@ -1127,7 +1127,7 @@ def run_network(pre_spike_time, post_spike_time,
 \centering
 \caption{Creating the network with \emph{JIT}}
 
-\begin{lstlisting}[language=Python]
+\begin{lstlisting}[language=Python, label=lst:build_network_with_jit]
 def run_network(pre_spike_time, post_spike_time,
                           neuron_model_name,
                           synapse_model_name,
@@ -1183,7 +1183,7 @@ def run_network(pre_spike_time, post_spike_time,
     ...
 
 \end{lstlisting}
-\label{fig:build_network_with_jit}
+%\label{fig:build_network_with_jit}
 \end{figure}
 
 \cleardoublepage
