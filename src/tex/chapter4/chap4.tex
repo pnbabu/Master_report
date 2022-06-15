@@ -113,7 +113,7 @@ In this chapter, we introduce a naive solution and discuss its drawbacks, and th
 
 \end{tikzpicture}
 
-\caption{Modularity and Vectorization}
+\caption{Modularity and Vectorization: The left part represents the current implementation of the models in the \emph{NestKenel}. We have $n$ instances of the model and each has its own \emph{state} block with an attribute $S$. In the right, we have the suggested idea using \emph{vectorization}. All instances share the same \emph{state} block, and instead of having $n$ separated attributes, the attributes are aggregated in a single array with size $n$.}
 \label{fig:moduliarity_vectorization}
 \end{figure}
 
@@ -191,7 +191,7 @@ In this chapter, we introduce a naive solution and discuss its drawbacks, and th
 
 \end{tikzpicture}
 
-    \caption{Modularity with a central entity}
+    \caption{Modularity with a central entity: The model is segmented into different blocks that are assembled together during the simulating. The nodes share the \emph{central entity} that manages the state of the blocks. Each of the blocks support vectorization and each of the attributes has a vector form with the size equal to the created population in the network from the specified model.}
     \label{fig:central_entity}
 \end{figure}
 
@@ -302,7 +302,7 @@ A \emph{speedup} of $k$ means that we load $k$ elements in the register of the p
 
 \end{tikzpicture}
 
-    \caption{Example of SIMD operation}
+    \caption{Example of SIMD operation: A parallel operation is applied to the single entries of the \emph{Vector A} and \emph{Vector B}. Instead of applying the operation in sequences by iterating over the items, a modern processor with SIMD instructions can execute the operation for $k$ entries in parallel.}
     \label{fig:simd}
 \end{figure}
 
@@ -380,7 +380,7 @@ A direct naive solution to integrate \emph{Vectorization} in \emph{NestKernel} i
 \begin{figure}[h!]
 \centering
 \includegraphics[width=0.8\textwidth]{src/pic/wrapper.png}
-\caption{The naive solution for Vectorization}
+\caption{The naive solution for Vectorization: The \texttt{Node} class in the \emph{NestKenel} is adjusted by extending all its functions by a new parameter indicating the \texttt{local\_id} of the node that we want to apply the function on. Additionally, the attributes in the \texttt{Node} class are modified to have a vector from. The \texttt{Wrapper} class inherits from the \texttt{Node} class and at the same time has an attribute with a \texttt{Node} type. This makes the \texttt{Wrapper} class have an instance of itself, and we should definitely avoid using this design.}
 \label{fig:naive}
 \end{figure}
 
@@ -395,7 +395,7 @@ To solve the issue in the naive solution, we have to separate between \emph{vect
 \begin{figure}[h!]
 \centering
 \includegraphics[width=0.8\textwidth]{src/pic/wrapper_node.png}
-\caption{The Wrapper and the VectorizedNode}
+\caption{The Wrapper and the VectorizedNode: The new design after considering the drawbacks of the naive solution. The \texttt{Wrapper} still inherits from the \texttt{Node} interface, but instead of owning an attribute of the \texttt{Node} class, it owns an attribute of the \texttt{VectorizedNode}. The \texttt{VectorizedNode} class is the twin of the \texttt{Node} class, with the only difference that supports vectorization.}
 \label{fig:container}
 \end{figure}
 
@@ -405,7 +405,7 @@ In the \autoref{fig:container}, we illustrate the derived solution from the naiv
 \begin{figure}[h!]
 \centering
 \includegraphics[width=\textwidth]{src/pic/node_creation_vec.png}
-\caption{Registering a Vectorized model}
+\caption{Registering a Vectorized model: The message sequence chart depicts the interaction between the components in the \emph{NestKernel} responsible for registering the vectorized new custom models.}
 \label{fig:register_container}
 \end{figure}
 
