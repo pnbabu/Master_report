@@ -100,6 +100,16 @@ Upon requesting the creation of $n$ nodes, the \texttt{NodeMananger} calls the \
 \emph{PyNEST} and the \emph{NestKernel} are completely separated and independent modules. The only way for both of them to communicate is through the \texttt{SLI} interface. As shown in \autoref{fig:pynest} from \citep{epp}, \emph{PyNEST} is split into two layers. The \emph{low-level API} is responsible for ensuring the smooth communication between \emph{Python} and \emph{SLI} by providing the necessary functionalities for converting data from \emph{SLI} to \emph{Python} and vice versa. The \emph{low-level API} is based on the \emph{Python C API}. It uses mainly three functions to communicate with \emph{SLI}. The \texttt{sli\_push()} function for pushing the function's arguments of the \emph{SLI} command onto the stack, \texttt{sli\_pop} for retrieving the returned value of the command from the stack and finally the \texttt{sli\_run} for executing the command.  the \texttt{sli\_push} and \texttt{sli\_pop} are also responsible for converting the data (arguments and results) between both interfaces.
 
 
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=1\textwidth,height=1\textheight,keepaspectratio]{src/pic/The-architecture-of-PyNEST-The-lowest-level-is-the-simulation-engine-It-is-used-by.png}
+\caption{The architecture of \emph{PyNEST}: The figure is taken from \citep{epp}, and it shows the main communication levels between the user code and the \emph{NestKernel}. The lowest level is the simulation engine. It is used by
+the simulation language interpreter and by the \emph{PyNEST} low-level API. The\emph{PyNEST} high-level
+API uses the low-level API to communicate with the simulation engine. The user’s simulation
+code can use functions from \emph{PyNEST}, from Python, and from its extension modules.}
+\label{fig:pynest}
+\end{figure}
+
 
  The \emph{high-level API} provides the necessary functions for creating the network and running the simulation. Using the three provided functions in the \emph{low-level API} is not convenient and might not be very intuitive. Therefore, the \emph{high-level API} solves this problem by wrapping the \texttt{SLI} functions. It covers all the functionalities in \emph{SLI} by using the functions from the \emph{low-level API}, making all \emph{SLI} commands available.
  
@@ -122,15 +132,6 @@ Of course the \emph{PyNEST} module has other important functions to provide, lik
  
  
 
-\begin{figure}[ht!]
-\centering
-\includegraphics[width=1\textwidth,height=1\textheight,keepaspectratio]{src/pic/The-architecture-of-PyNEST-The-lowest-level-is-the-simulation-engine-It-is-used-by.png}
-\caption{The architecture of \emph{PyNEST}: The figure is taken from \citep{epp}, and it shows the main communication levels between the user code and the \emph{NestKernel}. The lowest level is the simulation engine. It is used by
-the simulation language interpreter and by the \emph{PyNEST} low-level API. The\emph{PyNEST} high-level
-API uses the low-level API to communicate with the simulation engine. The user’s simulation
-code can use functions from \emph{PyNEST}, from Python, and from its extension modules.}
-\label{fig:pynest}
-\end{figure}
 
 
 
