@@ -1,11 +1,44 @@
 \chapter{Introduction}
 
 \section{Overview}
-The human body has always been an inspiration for many technologies. Scientists have successfully achieved to fully understand the mechanics behind different parts of the human body and have created models that imitate the functionalities of the studied parts. However, The human brain is one of the most complex organs in the human body \citep{nolte2002human} that we still don’t fully understand its mechanics. Creating machines that can outstrip human capabilities such as high-level cognition associated with conscious perception is a bit of a controversial goal and before diving deep into that topic, we need to understand how specific information processing of the brain would be replicated by machines and how to create models that target specifics activities in the brain and replicate their behavior in connection with other parts.
 
-The successful understanding and transfer of knowledge gained from neuroscience to the development of \emph{neural simulator} is strongly dependent on the interaction between researches from both the fields of computer science and neuroscience. Such interaction may lead to accelerate the growth of the simulation frameworks and to a better understanding of the human mind. Distilling intelligence into a machine and comparing its behavior with the human mind might yield interesting insights into demystifying some mysteries of the brain, such as understanding the source of creativity, dreams and possibly even understanding consciousness.
+\todobox{
+Please fix in your BibTeX file:
+  
+  Warning--no author, editor, or organization in nest\\
+  Warning--no author, editor, or organization in cppyy\\
+  Warning--no author, editor, or organization in cppyy\\
+  Warning--no author, editor, or organization in cppyy\\
+  Warning--no author, editor, or organization in nest\\
+  Warning--no author, editor, or organization in nest\\
+  Warning--no author, editor, or organization in cppyy\\
+  Warning--empty year in cppyy\\
+  Warning--no journal in epp\\
+  Warning--no number and no volume in epp\\
+  Warning--page numbers missing in epp\\
+  Warning--page numbers missing in 10.3389/neuro.11.012.2008\\
+  Warning--no number and no volume in nolte2002human\\
+  Warning--page numbers missing in nolte2002human\\
+  Warning--no author, editor, or organization in nest\\
+  Warning--empty year in nest\\
+  Warning--no number and no volume in plotnikov2016nestml\\
+  Warning--page numbers missing in plotnikov2016nestml\\
+}
 
-Using the Nest Modeling Language \emph{NESTML} together with the Neural Simulation Tool \emph{NEST}, users can write custom neural and synapse models with different specifications and use them in their simulation scripts by simply installing the generated and complied library of the model at the runtime. In general, there are two use cases for generating such models. The first and simple case is generating the code for simple neurons without specifying the synaptic connection of the model. The second and more complex is co-generating a neuron model and synapse together. The latter case is important as it tackles some combinatorial and performance issues. Unfortunately, \emph{NEST} can't know in advance which case must be handled, and it must be explicitly given to \emph{NESTML} to process these configurations. Apart from these cases, the user must specify the location of the model, target platform and if needed a custom template defining how to generate the \texttt{C++} code for the given models.
+
+The human body has always been an inspiration for many technologies. Scientists have successfully achieved to understand the mechanics behind different parts of the human body and have created models that imitate the functionalities of the studied parts. However, The human brain is one of the most complex organs in the human body \citep{nolte2002human} and we do still not fully understand its inner workings. Creating machines that can achieve human capabilities such as high-level cognition associated with conscious perception is a human dream since a long time. However, before such a goal can even remotely be achieved, we need to understand how information is processed in the brain, how that would be replicated by machines, and how to models of can be created that target specific functions of the brain and replicate their behavior in connection with other parts of the body \todo{cite some embodiment papers like https://doi.org/10.3389/fninf.2022.884180, also see the abstract for additional references}.
+
+Successfully understanding the processes in the brain that create phenomena such as creativity, dreaming and conciousness crucially depends on efficient and easy to use \emph{neural simulators}, the development of which strongly depends on the interaction between researches from both the fields of computer science and neuroscience. Such interactions can lead to better quality and feature-richness of the simulation frameworks and as a result to a better understanding of the human mind. One building block in the neural simulation landscape are tools for the creation of neuron and synapse models which are the basic processing elements of the brain. 
+
+\todobox{
+Here needs to be a proper description of what neuons and synapses are (in a brain), how models of them work (mathematically), and  why this matters (to research). Also, there needs to be an explanation of the workflow that a usual modeler follows to get from an idea to a simulation. The distiction between network models (e.g., the result of executing a simulation script with Create() and Connect() calls) and neuron and synapse models (e.g. the basic elements, the network is created from) needs to be made clear. Best case, this includes a small PyNEST script with line numbers and a caption that describes the different parts by referring to the line numbers. 
+}
+
+The NEST Modelling Language \emph{NESTML} \todo{cite} allows users to write custom neuron and synapse models \hl{by specifying their state variables, parameters, equations and optionally a procedural description of the update.} Such models can then be used in simulation studies by loading the generated and complied model libraries at runtime into the Neural Simulation Tool \emph{NEST} \todo{cite}. In general, there are two possibilities for generating such models: The first and simple case is to generate code for neurons without knowing the synaptic connections of the model. \hl{This case only works if there are no interdependent variables between neurons and synapses}. The second and more complex case is co-generating a neuron and a synapse model together. Unfortunately\todo{Avoid emotional words like "unfortunately"}, \emph{NEST} can't \todo{always spell out these short forms: cannot} know in advance which case must be handled \todo{why not? Please explain this better}, and it must be explicitly given to \emph{NESTML} to process these configurations. Apart from these cases, the user must specify the location of the model, target platform and if needed a custom template defining how to generate the \texttt{C++} code for the given models.
+
+\todobox{
+  \textbf{This is the single most important position in your thesis!} Here, you need to explain what the problem with the old way of doing things was and why a new way is needed. Try to think like a user of NEST: You have a modelling idea and are iteratively developing the network script in PyNEST and at the same time you write your neuron and synapse models in NESTML. Then you run everything (possibly in batch mode on a supercomputer). After three hours, when your job is finally scheduled and run, you get an error message that you did not specify some neuron/synapse configuration, the path to a model, or some other stupud thing the pipeline could easily have figured out itself. This is a huge annoyance and a waste of both the users' time and possibly also expensive compute resources. Using JIT is primarily a solution to this problem. You can well spend two or three paragraphs to develop this.
+}
 
 The thesis focuses on \emph{virtually} integrating \emph{NESTML} in \emph{PyNEST} (the Python interface for \emph{NEST}). This virtual integration means that we won't modify the \emph{PyNEST} module by introducing new logic or implementing new functions, but instead we intercept the interface function calls and then decide to do some processing before or after the function call or just totally ignore the function and execute it later in the script. Mathematically described, each function $f$ in \emph{PyNEST} is replaced by one of the following execution paths:
 \begin{align*}
@@ -18,6 +51,10 @@ The thesis focuses on \emph{virtually} integrating \emph{NESTML} in \emph{PyNEST
 \end{align*}
 
 The empty set means that we intercept the function call but do nothing. The functions \texttt{before} and \texttt{after} refer to a pre-processing and post-processing steps. It is not always the case that we have to call both functions, as we may have to call either one of them or even, like depicted in the last case, we can make the call to the function $f$ make something totally different and hide this new behavior inside one of  the processing functions. Together, the interception logic with \emph{NESTML}, the \emph{JIT} mechanism should be able to control the execution of the simulation script and decide when and which models should be instantiated and make all this decisions transparent for both, the user and the simulation script.
+
+\todobox{
+  Again use the argumentation that I put into the abstract to get from JIT to Vectorization, but go into a bit more details here.
+}
 
 Apart from virtually extending the \emph{PyNEST} interface, we adjust the \texttt{NestKernel} infrastructure to support \emph{Vectorization} \citep{nuzman2006auto}. The approach is based on modifying the data structure representing the created neurons models to a new data structure in a \emph{vector} form. This new form supports the parallel and independent processing of neurons and compared to the current representation of neurons in the \emph{NestKernel}, it should reduce the number of cache misses \citep{ghosh1997cache}, and thus we expect a speedup and performance gain during the simulation with a large network.
 
