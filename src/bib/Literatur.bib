@@ -45,10 +45,13 @@
 }
 
 @MISC{cppyy,
-  title = {{Automatic Python-C++ bindings {\tt https://cppyy.readthedocs.io/en/latest}}},
+  title = {Automatic Python-C++ bindings}, 
+  url={https://cppyy.readthedocs.io/en/latest},
   key = {CPPYY},
   month = {},
-  mylabel = {cppyy}
+  mylabel = {cppyy},
+  author={Wim Lavrijsen},
+  year={2018}
 }
 
 @ARTICLE{10.3389/neuro.11.012.2008,
@@ -61,7 +64,9 @@ JOURNAL={Frontiers in Neuroinformatics},
 	
 VOLUME={2},      
 	
-YEAR={2009},      
+YEAR={2009},
+
+PAGES={12},
 	  
 URL={https://www.frontiersin.org/article/10.3389/neuro.11.012.2008},       
 	
@@ -72,11 +77,29 @@ ISSN={1662-5196},
 ABSTRACT={The neural simulation tool NEST (<monospace>http://www.nest-initiative.org</monospace>) is a simulator for heterogeneous networks of point neurons or neurons with a small number of compartments. It aims at simulations of large neural systems with more than 10<sup>4</sup> neurons and 10<sup>7</sup> to 10<sup>9</sup> synapses. NEST is implemented in C++ and can be used on a large range of architectures from single-core laptops over multi-core desktop computers to super-computers with thousands of processor cores. Python (<monospace>http://www.python.org</monospace>) is a modern programming language that has recently received considerable attention in Computational Neuroscience. Python is easy to learn and has many extension modules for scientific computing (e.g. <monospace>http://www.scipy.org</monospace>). In this contribution we describe PyNEST, the new user interface to NEST. PyNEST combines NEST's efficient simulation kernel with the simplicity and flexibility of Python. Compared to NEST's native simulation language SLI, PyNEST makes it easier to set up simulations, generate stimuli, and analyze simulation results. We describe how PyNEST connects NEST and Python and how it is implemented. With a number of examples, we illustrate how it is used.}
 }
 
-@article{plotnikov2016nestml,
+@misc{plotnikov2016nestml,
   title={NESTML: a modeling language for spiking neurons},
   author={Plotnikov, Dimitri and Rumpe, Bernhard and Blundell, Inga and Ippen, Tammo and Eppler, Jochen Martin and Morrison, Abgail},
   journal={arXiv preprint arXiv:1606.02882},
   year={2016}
+}
+
+@misc{linssen_charl_a_p_2022_5784175,
+  author       = {Linssen, Charl A.P. and
+                  Babu, Pooja N. and
+                  Benelhedi, Ayssar and
+                  De Schepper, Robin and
+                  Fardet, Tanguy and
+                  Eppler, Jochen Martin and
+                  Rumpe, Bernhard and
+                  Morrison, Abigail},
+  title        = {NESTML 5.0.0},
+  month        = may,
+  year         = 2022,
+  publisher    = {Zenodo},
+  version      = {5.0.0},
+  doi          = {10.5281/zenodo.5784175},
+  url          = {https://doi.org/10.5281/zenodo.5784175}
 }
 
 @article{nuzman2006auto,
@@ -91,11 +114,12 @@ ABSTRACT={The neural simulation tool NEST (<monospace>http://www.nest-initiative
 }
 
 
-@article{nolte2002human,
+@misc{nolte2002human,
   title={The human brain},
   author={Nolte, John},
   journal={An Introduction to Its Functional Anatomy.},
   year={2002},
+  pages={672},
   publisher={Mosby}
 }
 
@@ -124,7 +148,7 @@ ABSTRACT={The neural simulation tool NEST (<monospace>http://www.nest-initiative
   publisher={Addison-Wesley Longman Publishing Co., Inc.}
 }
 
-@article{epp,
+@misc{epp,
 author = {Eppler, Jochen},
 year = {2010},
 month = {01},
@@ -167,7 +191,7 @@ NOTE    = {revision \#130182}
   number  = {4}
 }
 
-@software{deepu_rajalekshmi_2021_5508805,
+@misc{deepu_rajalekshmi_2021_5508805,
   author       = {Deepu, Rajalekshmi and
                   Spreizer, Sebastian and
                   Trensch, Guido and
@@ -194,7 +218,7 @@ NOTE    = {revision \#130182}
   url          = {https://doi.org/10.5281/zenodo.5508805}
 }
 
-@software{spreizer_sebastian_2022_6368024,
+@misc{spreizer_sebastian_2022_6368024,
   author       = {Spreizer, Sebastian and
                   Mitchell, Jessica and
                   Jordan, Jakob and
@@ -224,7 +248,7 @@ NOTE    = {revision \#130182}
   url          = {https://doi.org/10.5281/zenodo.6368024}
 }
 
-@ARTICLE{10.3389/fninf.2014.00023,
+@misc{10.3389/fninf.2014.00023,
   
 AUTHOR={Zaytsev, Yury and Morrison, Abigail},   
 	 
@@ -243,4 +267,43 @@ DOI={10.3389/fninf.2014.00023},
 ISSN={1662-5196},   
    
 ABSTRACT={NEST is a simulator for large-scale networks of spiking point neuron models (Gewaltig and Diesmann, <xref ref-type="bibr" rid="B11">2007</xref>). Originally, simulations were controlled via the Simulation Language Interpreter (SLI), a built-in scripting facility implementing a language derived from PostScript (Adobe Systems, Inc., <xref ref-type="bibr" rid="B1">1999</xref>). The introduction of PyNEST (Eppler et al., <xref ref-type="bibr" rid="B8">2008</xref>), the Python interface for NEST, enabled users to control simulations using Python. As the majority of NEST users found PyNEST easier to use and to combine with other applications, it immediately displaced SLI as the default NEST interface. However, developing and maintaining PyNEST has become increasingly difficult over time. This is partly because adding new features requires writing low-level C++ code intermixed with calls to the Python/C API, which is unrewarding. Moreover, the Python/C API evolves with each new version of Python, which results in a proliferation of version-dependent code branches. In this contribution we present the re-implementation of PyNEST in the Cython language, a superset of Python that additionally supports the declaration of C/C++ types for variables and class attributes, and provides a convenient foreign function interface (FFI) for invoking C/C++ routines (Behnel et al., <xref ref-type="bibr" rid="B2">2011</xref>). Code generation via Cython allows the production of smaller and more maintainable bindings, including increased compatibility with all supported Python releases without additional burden for NEST developers. Furthermore, this novel approach opens up the possibility to support alternative implementations of the Python language at no cost given a functional Cython back-end for the corresponding implementation, and also enables cross-compilation of Python bindings for embedded systems and supercomputers alike.}
+}
+
+@ARTICLE{10.3389/fninf.2022.884180,
+  
+AUTHOR={Feldotto, Benedikt and Eppler, Jochen Martin and Jimenez-Romero, Cristian and Bignamini, Christopher and Gutierrez, Carlos Enrique and Albanese, Ugo and Retamino, Eloy and Vorobev, Viktor and Zolfaghari, Vahid and Upton, Alex and Sun, Zhe and Yamaura, Hiroshi and Heidarinejad, Morteza and Klijn, Wouter and Morrison, Abigail and Cruz, Felipe and McMurtrie, Colin and Knoll, Alois C. and Igarashi, Jun and Yamazaki, Tadashi and Doya, Kenji and Morin, Fabrice O.},   
+	 
+TITLE={Deploying and Optimizing Embodied Simulations of Large-Scale Spiking Neural Networks on HPC Infrastructure},      
+	
+JOURNAL={Frontiers in Neuroinformatics},      
+	
+VOLUME={16},      
+	
+YEAR={2022},
+
+PAGES={23},
+	  
+URL={https://www.frontiersin.org/article/10.3389/fninf.2022.884180},       
+	
+DOI={10.3389/fninf.2022.884180},      
+	
+ISSN={1662-5196},   
+   
+ABSTRACT={Simulating the brain-body-environment trinity in closed loop is an attractive proposal to investigate how perception, motor activity and interactions with the environment shape brain activity, and vice versa. The relevance of this embodied approach, however, hinges entirely on the modeled complexity of the various simulated phenomena. In this article, we introduce a software framework that is capable of simulating large-scale, biologically realistic networks of spiking neurons embodied in a biomechanically accurate musculoskeletal system that interacts with a physically realistic virtual environment. We deploy this framework on the high performance computing resources of the EBRAINS research infrastructure and we investigate the scaling performance by distributing computation across an increasing number of interconnected compute nodes. Our architecture is based on requested compute nodes as well as persistent virtual machines; this provides a high-performance simulation environment that is accessible to multi-domain users without expert knowledge, with a view to enable users to instantiate and control simulations at custom scale via a web-based graphical user interface. Our simulation environment, entirely open source, is based on the Neurorobotics Platform developed in the context of the Human Brain Project, and the NEST simulator. We characterize the capabilities of our parallelized architecture for large-scale embodied brain simulations through two benchmark experiments, by investigating the effects of scaling compute resources on performance defined in terms of experiment runtime, brain instantiation and simulation time. The first benchmark is based on a large-scale balanced network, while the second one is a multi-region embodied brain simulation consisting of more than a million neurons and a billion synapses. Both benchmarks clearly show how scaling compute resources improves the aforementioned performance metrics in a near-linear fashion. The second benchmark in particular is indicative of both the potential and limitations of a highly distributed simulation in terms of a trade-off between computation speed and resource cost. Our simulation architecture is being prepared to be accessible for everyone as an EBRAINS service, thereby offering a community-wide tool with a unique workflow that should provide momentum to the investigation of closed-loop embodiment within the computational neuroscience community.}
+}
+
+
+@MISC{introductiontopsychology,
+    author = {{Jennifer Walinga}},
+    title = {Diagram of basic neuron and components},
+    year = {2014},
+    url = {https://opentextbc.ca/introductiontopsychology/chapter/3-1-the-neuron-is-the-building-block-of-the-nervous-system/}
+}
+
+
+@MISC{Neurotransmitters,
+    author = {{Jennifer Walinga}},
+    title = { The Body’s Chemical Messengers},
+    year = {2014},
+    url = {https://opentextbc.ca/introductiontopsychology/chapter/3-1-the-neuron-is-the-building-block-of-the-nervous-system/}
 }
