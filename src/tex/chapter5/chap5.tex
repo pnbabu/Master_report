@@ -19,7 +19,7 @@ In the first experiment in testing the \emph{JIT} module, we run the \emph{Brune
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{src/pic/box_plot_three.png}
-    \caption{The max-average-min runtime in seconds}
+    \caption{Network with custom neuron and built-in synapse: The blue box represents the performance of the simulation script without using JIT, and it has the best performance among the other experiments. The orange box represents the performance of running the same neural network with JIT but with the model being an external model being already built in a dynamic library. Finally, the green box is for running the simulation with JIT, but the neuron model is only available in a NESTML file format. The red lines inside each box represent the average runtime of the experiments.}
     \label{fig:max_average_min}
 \end{figure}
 
@@ -34,8 +34,8 @@ In the second experiment, we ran the \emph{STDP windows} simulation script from 
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=\textwidth]{src/pic/synapse_neuron_eval.png}
-    \caption{The overall runtime}
+    \includegraphics[width=\textwidth]{src/pic/three_plots.png}
+    \caption{Network with custom neuron and built-in synapse: The first plot \emph{a} represents the overall runtime of the three experiments. The second plot \emph{b} shows the average runtime of the first iteration in all the three experiments. In the last plot \emph{c}, we compute the average runtime for all iterations for each run and then take the average runtime over the multiple runs. }
     \label{fig:overall_runtime}
 \end{figure}
 
@@ -66,28 +66,28 @@ In the rest of the figures with threads in \{8, 16, 32\}, we observe that the ve
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{src/pic/thread_1.png}
-    \caption{Performance of \texttt{nest.Create} function with the number of $threads=1$}
+    \caption{Performance of \texttt{nest.Create} function with the number of $threads=1$: The left plot depicts the average performance of the vectorized model. The plot in the model shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the \emph{min-max} area, and it is depicted in orange and red respectively.}
     \label{fig:threads_1}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{src/pic/thread_2.png}
-    \caption{Performance of \texttt{nest.Create} function with the number of $threads=2$}
+    \caption{Performance of \texttt{nest.Create} function with the number of $threads=2$: The left plot depicts the average performance of the vectorized model. The plot in the model shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the \emph{min-max} area, and it is depicted in orange and red respectively.}
     \label{fig:threads_2}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{src/pic/thread_4.png}
-    \caption{Performance of \texttt{nest.Create} function with the number of $threads=4$}
+    \caption{Performance of \texttt{nest.Create} function with the number of $threads=4$: The left plot depicts the average performance of the vectorized model. The plot in the model shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the \emph{min-max} area, and it is depicted in orange and red respectively.}
     \label{fig:threads_4}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{src/pic/thread_8.png}
-    \caption{Performance of \texttt{nest.Create} function with the number of $threads=8$}
+    \caption{Performance of \texttt{nest.Create} function with the number of $threads=8$: The left plot depicts the average performance of the vectorized model. The plot in the model shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the \emph{min-max} area, and it is depicted in orange and red respectively.}
     \label{fig:threads_8}
 \end{figure}
 
@@ -95,14 +95,14 @@ In the rest of the figures with threads in \{8, 16, 32\}, we observe that the ve
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{src/pic/thread_16.png}
-    \caption{Performance of \texttt{nest.Create} function with the number of $threads=16$}
+    \caption{Performance of \texttt{nest.Create} function with the number of $threads=16$: The left plot depicts the average performance of the vectorized model. The plot in the model shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the \emph{min-max} area, and it is depicted in orange and red respectively.}
     \label{fig:threads_16}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{src/pic/thread_32.png}
-    \caption{Performance of \texttt{nest.Create} function with the number of $threads=32$}
+    \caption{Performance of \texttt{nest.Create} function with the number of $threads=32$: The left plot depicts the average performance of the vectorized model. The plot in the model shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the \emph{min-max} area, and it is depicted in orange and red respectively.}
     \label{fig:threads_32}
 \end{figure}
 
@@ -116,7 +116,7 @@ In general, the plots between the \autoref{fig:nodes_1} and \autoref{fig:nodes_1
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{src/pic/nodes_\n.png}
-    \caption{Performance of \texttt{nest.Create} function with the number of $nodes=$\n}
+    \caption{Performance of \texttt{nest.Create} function with the number of $nodes=$\n: The left plot depicts the average performance of the vectorized model. The plot in the model shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the \emph{min-max} area, and it is depicted in orange and red respectively.}
     \label{fig:nodes_\n}
 \end{figure}
 }
@@ -132,7 +132,7 @@ Even with the \texttt{nest.GetStatus} not fully being optimized to support vecto
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{src/pic/get_thread_\n.png}
-    \caption{Performance of \texttt{nest.GetStatus} function with the number of $nodes=$\n}
+    \caption{Performance of \texttt{nest.GetStatus} function with the number of $nodes=$\n: The left plot depicts the average performance of the vectorized model. The plot in the model shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the \emph{min-max} area, and it is depicted in orange and red respectively.}
     \label{fig:get_threads_\n}
 \end{figure}
 }
@@ -154,7 +154,7 @@ Reaching higher number of nodes as in \autoref{fig:get_nodes_5000} with 5000 nod
 {
 \begin{figure}[ht!]
     \includegraphics[width=\textwidth]{src/pic/get_nodes_\n.png}
-    \caption{Performance of \texttt{nest.GetStatus} function with the number of $threads=$\n}
+    \caption{Performance of \texttt{nest.GetStatus} function with the number of $threads=$\n: The left plot depicts the average performance of the vectorized model. The plot in the model shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the \emph{min-max} area, and it is depicted in orange and red respectively.}
     \label{fig:get_nodes_\n}
 \end{figure}
 }
