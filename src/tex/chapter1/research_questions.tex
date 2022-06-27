@@ -148,9 +148,9 @@ The interception logic described here will allow to run a mostly unaltered PyNES
 One drawback of the JIT mechanism as explained above, however, is that neuron models will only become available at the point in time when instances of the models are connected using a specific synapse model. To illustrate the problems that might arise, consider the following PyNEST script:
 
 \hl{Please format the following Python snippet and add a caption that explains what we see.}
-\begin{lstlisting}[language=Python, mathescape,label=lst:simple_simulation, caption={}, captionpos=b]]
+\begin{lstlisting}[language=Python, literate={LL}{{\Lightning}}1, label=lst:simple_simulation, caption={}, captionpos=b]]
 neurons = nest.Create(iaf_psc_alpha, 100, {"V_m": nest.random.uniform(-70.0, -60.0)})
-weight = neurons[10].V_m * 100 # PROBLEM!!! Where would the value have been stored?
+weight = neurons[10].V_m * 100 # LL Where would the value have been stored?
 nest.Connect(neurons, neurons, syn_spec={"synapse_model": "my_complex_model", "weight": weight})
 \end{lstlisting}
 
