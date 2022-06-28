@@ -12,7 +12,8 @@
 \usepackage{pdfpages}
 \usepackage[strict]{changepage}
 \usepackage{url}
-\usepackage{amsmath} 
+\usepackage{amsmath}
+\usepackage{marvosym}
 \usepackage{hyperref}
 \usepackage{caption}
 \usepackage{xcolor}
@@ -30,7 +31,7 @@
 \usepackage{soul}
 
 \newcommand{\todobox}[1]{\begin{tcolorbox}[colback=yellow]#1\end{tcolorbox}}
-
+\DeclareRobustCommand{\hlcyan}[1]{{\sethlcolor{cyan}\hl{#1}}}
 
 %\usepackage[colorlinks=true,linkcolor=blue]{hyperref}%
 
@@ -142,7 +143,7 @@
 
 
 %caption_setup
-\captionsetup{labelfont=bf,format=hang,labelsep=colon}
+\captionsetup{labelfont=bf,labelsep=colon}
 
 
 
