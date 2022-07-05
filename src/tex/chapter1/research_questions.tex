@@ -36,7 +36,6 @@ We distinguish three states (or phases) that a neuron can undergo, the \emph{res
   \label{fig:action_potential}
 \end{figure}
 
-\hl{The Jennifer Wanglia and the Molecular Devices references are not references. Where would I find them? Each reference needs a link/publisher/journal/year/doi. Please see my thesis or others for how these should look like and fix all of them accordingly.}
 
 An important property of the action potential is that it cannot be partial. It is that the neuron either \emph{fires} completely, such that the action potential travels all the way down the axon, or it does not fire at all. After firing a spike, the neuron is not able to instantly fire again due to the depletion of its neurotransmitter vesicles. This is true even if other electrical impulses are being accumulated at the dendrites. This period of \emph{hyper-polarization} is also called the \emph{refractory period} of the neuron.
 
@@ -166,7 +165,7 @@ One drawback of the JIT mechanism as explained above, however, is that neuron mo
 
 \begin{figure}[ht!]
   \centering
-\begin{lstlisting}[language=Python, literate={LL}{{\Lightning}}1, label=lst:double_memory, caption={We create 100 instances of the \emph{iaf\_psc\_alpha} model and we initlize the values of the membrane potential \texttt{V\_m} from a unifrom distribution. Secondly, we want to compute the synaptic weight of the connection as the value of the membrane potential of the eleventh neuron times 100. Finally, we want to connect all neurons with each other and set the weight of the synaptic connection to the weight computed in line 6. For this to work when using JIT, the random value must be cached on the Python level in order to allow the user to retrieve it while waiting for the code generation pipeline to finish in the background. When the code becomes available, the \texttt{V\_m} values could be copied from Python to C++, but resulting in a doubling of the memory requirements as such small memory allocations usually cannot be re-used efficiently due to fragmentation.}, captionpos=b]]
+\begin{lstlisting}[language=Python, literate={LL}{{\Lightning}}1, label=lst:double_memory, caption={We create 100 instances of the \emph{iaf\_psc\_alpha} model and we initlize the values of the membrane potential \texttt{V\_m} from a unifrom distribution. Secondly, we want to compute the synaptic weight of the connection as the value of the membrane potential of the eleventh neuron times 100. Finally, we want to connect all neurons with each other and set the weight of the synaptic connection to the weight computed in line 6. For this to work when using JIT code generation, the random value must be cached on the Python level in order to allow the user to retrieve it while waiting for the code generation pipeline to finish in the background. When the code becomes available, the \texttt{V\_m} values could be copied from Python to C++, but resulting in a doubling of the memory requirements as such small memory allocations usually cannot be re-used efficiently due to fragmentation.}, captionpos=b]]
 # Create new neurons
 params =  {"V_m": nest.random.uniform(-70.0, -60.0)}
 neurons = nest.Create(iaf_psc_alpha, 100, params)
@@ -190,7 +189,7 @@ My main task for this thesis is thus twofold: First, a wrapper around PyNEST nee
 
 \section{Thesis Outline}
 
-In \autoref{chap:funds}, I introduce PyNEST and the NestKernel with a focus on the major components involved in supporting both the JIT and Vectorization implementations.
+In \autoref{chap:funds}, I introduce PyNEST and the NestKernel with a focus on the major components involved in supporting both the JIT approach and Vectorization implementations.
 
 \autoref{chap:jit} dives deeper into the requirements of the JIT mechanism, introduces possible solutions to meet them and explains the chosen solution and contrasts it with alternative approaches. Having the suggested solution explained, I point out the design and implementation decisions. Finally, I willustrate how to enable the JIT mechanism in a simulation script with the help of a walked example and discuss the changes that must be applied to the script when coming from a script that uses plain PyNEST.
 

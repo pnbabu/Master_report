@@ -1,10 +1,10 @@
 
 \chapter{JIT Module}
-The focus in this chapter is understanding how to make the concept of the \emph{Just-in-time (JIT)} compilation work without directly affecting the workflow of \emph{PyNEST}. As in any software development process, we start by listing the different requirements that the \emph{JIT} must fulfil, discussing the different ideas about the design decision and finally showing what possible implications does the new software have on the simulation scripts.
+The focus in this chapter is understanding how to make the concept of the \emph{Just-in-time (JIT)} compilation work without directly affecting the workflow of \emph{PyNEST}. As in any software development process, we start by listing the different requirements that the \emph{JIT} approach must fulfil, discussing the different ideas about the design decision and finally showing what possible implications does the new software have on the simulation scripts.
 
  \label{chap:jit}
 \section{Derived Requirements}
-In order to have a concise understanding of the \emph{JIT} mechanism and to really evaluate the correctness of the chosen design, we need to have a list of the different requirements that should facilitate the communication between \emph{JIT} and \emph{PyNEST} and cover the different scenarios that may appear during the simulation. 
+In order to have a concise understanding of the \emph{JIT} mechanism and to really evaluate the correctness of the chosen design, we need to have a list of the different requirements that should facilitate the communication between  the \emph{JIT} tool and \emph{PyNEST} and cover the different scenarios that may appear during the simulation. 
 \subsection{Functional Requirement}
 
 
@@ -27,7 +27,7 @@ Mainly, the \emph{JIT} mechanism should interact with two elements, the \emph{Py
    
 \end{labeling}
 
-These five requirements are the base specifications for designing the \emph{JIT}. The first requirement states that the user should not explicitly import the \emph{PyNESTML} module in the script, and thus the \emph{JIT} will decide if it is required to use the code generator or not. The second specification requires that enabling or disabling the \emph{JIT} mechanism must not involve a complex a process and thus must be done in a single a call and the user should not worry about how it is done in the background. The third requirement ensures that there is no huge deviation in the script between having the \emph{JIT} enabled or disabled. The fourth requirement tackles the problem that when co-generating a neuron with a synapse, both the name of the neuron and the synapse will be changed, and therefore the user has to manually use the new names when using the co-generated models in the \texttt{nest.Connect} function in \emph{PyNEST}. Retrieving information about the model's instance or setting its attributes after creation is very common in most of the simulation scripts, and that must be granted by the sixth requirement that the model should be available after calling the \texttt{nest.Create} function.
+These five requirements are the base specifications for designing the \emph{JIT} tool. The first requirement states that the user should not explicitly import the \emph{PyNESTML} module in the script, and thus \emph{JIT} will decide if it is required to use the code generator or not. The second specification requires that enabling or disabling the \emph{JIT} mechanism must not involve a complex a process and thus must be done in a single a call and the user should not worry about how it is done in the background. The third requirement ensures that there is no huge deviation in the script between having the \emph{JIT} tool enabled or disabled. The fourth requirement tackles the problem that when co-generating a neuron with a synapse, both the name of the neuron and the synapse will be changed, and therefore the user has to manually use the new names when using the co-generated models in the \texttt{nest.Connect} function in \emph{PyNEST}. Retrieving information about the model's instance or setting its attributes after creation is very common in most of the simulation scripts, and that must be granted by the sixth requirement that the model should be available after calling the \texttt{nest.Create} function.
 
 \subsubsection*{PyNEST module:}
 
@@ -41,7 +41,7 @@ These five requirements are the base specifications for designing the \emph{JIT}
 
 \end{labeling}
 
-When creating instances of the model, the user can assign random values to some parameters of the model. Thus, when running the simulation script with \emph{JIT}, the result must be correct and \emph{reproducible}, and for that  case, the seventh requirement ensures the correctness of the \emph{JIT} module. The eight requirement emphasizes that \emph{PyNEST} should be completely independent and unaware of the existence of the \emph{JIT} module. The last requirement is a bit similar to the seventh requirement, and it states that  \emph{PyNEST}  should not have its functions signature adjusted to make \emph{JIT} work.
+When creating instances of the model, the user can assign random values to some parameters of the model. Thus, when running the simulation script with \emph{JIT}, the result must be correct and \emph{reproducible}, and for that  case, the seventh requirement ensures the correctness of the \emph{JIT} module. The eight requirement emphasizes that \emph{PyNEST} should be completely independent and unaware of the existence of the \emph{JIT} module. The last requirement is a bit similar to the seventh requirement, and it states that  \emph{PyNEST}  should not have its functions signature adjusted to make the \emph{JIT} tool work.
 
 
 With all these requirements coming from the user level script and \emph{PyNEST}, we came out with two approaches that satisfy all these requirements with each has its own drawbacks which will be discussed in the following section.
@@ -163,7 +163,7 @@ The tool also violates the fourth requirement (F4). As analyzing the code only, 
 These violated requirements are very crucial for persevering the correctness of the \emph{JIT} tool, and therefore we discuss  another alternative that might solve these violated specifications.
 
 
-The alternative approach requires understanding the logic behind the simulation script and splitting it into two parts. The first part for the functionalities that do not require \emph{JIT} and the second part those with \emph{JIT}. Even if we have a solution to solve this partition problem, it is obvious that we are again rearranging the code and ending up in violating the \emph{F8} (reproducibility) and \emph{F3} (deviation from original code) requirements.
+The alternative approach requires understanding the logic behind the simulation script and splitting it into two parts. The first part for the functionalities that do not require the \emph{JIT} mechanism and the second part those with the \emph{JIT} tool controling their workflow. Even if we have a solution to solve this partition problem, it is obvious that we are again rearranging the code and ending up in violating the \emph{F8} (reproducibility) and \emph{F3} (deviation from original code) requirements.
 
 \subsection{The PyNest Wrapper}
 
