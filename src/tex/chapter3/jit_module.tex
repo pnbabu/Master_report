@@ -1,120 +1,100 @@
 
-\chapter{JIT Module}
-The focus in this chapter is understanding how to make the concept of the \emph{Just-in-time (JIT)} compilation work without directly affecting the workflow of \emph{PyNEST}. As in any software development process, we start by listing the different requirements that the \emph{JIT} must fulfil, discussing the different ideas about the design decision and finally showing what possible implications does the new software have on the simulation scripts.
+\chapter{Design of the JIT mechanism}
+\label{chap:jit}
 
- \label{chap:jit}
-\section{Derived Requirements}
-In order to have a concise understanding of the \emph{JIT} mechanism and to really evaluate the correctness of the chosen design, we need to have a list of the different requirements that should facilitate the communication between \emph{JIT} and \emph{PyNEST} and cover the different scenarios that may appear during the simulation. 
-\subsection{Functional Requirement}
+The focus of this chapter is on concepts for the integration of \emph{just-in-time} (\emph{JIT}) compilation for NESTML models into the PyNEST workflow in a way that is fully backwards compatible and does not require any changes to the PyNEST API. As in any software development process, we start by listing the requirements that the JIT mechanism must fulfil. We then discuss different appects of our design decisions and finally show what possible implications the new software layer will actually have on simulation scripts.
 
+\section{Functional requirements}
 
+In order to have a concise understanding of the JIT mechanism and to really evaluate the correctness of the chosen design, we need a list of requirements that should facilitate the communication between the JIT mechanism and PyNEST and cover the different scenarios that may occur during the simulation.
 
-Mainly, the \emph{JIT} mechanism should interact with two elements, the \emph{PyNEST} Python module and the simulation script. This interaction puts certain restrictions on how the \emph{JIT} should work, affecting the logic behind writing the simulation scripts and how the \emph{PyNEST} may treat certain models. Therefore, in the following, we list the most important requirements and explain them in details. We start with requirements coming from the simulation script and then those from the \emph{PyNEST} module.
+First and foremost, the JIT mechanism should interact with the PyNEST module and the simulation script. This interaction puts certain restrictions on the functionality of the JIT compilation and affects the structure of simulation scripts and how PyNEST interacts with models. In the following sections, we thus list the most important requirements and explain them in detail. We start with requirements coming from the simulation script and continue with those from the PyNEST module.
 
-\subsubsection*{The Simulation Script:}
-
-\begin{labeling}{alligator}
-   \item  [/F1/] The user script should not explicitly import the \emph{PyNESTML} module. \\
-   
-     
-   \item [/F2/] Enabling and disabling \emph{JIT} must be done in very straightforward way.\\
-   
-   \item  [/F3/] Having \emph{JIT} enabled, the simulation script should not vary a lot from the original script with \emph{JIT} being disabled.\\
- 
-   \item  [/F4/]\label{req:F4} The user should not explicitly specify the name of the neuron/synapse pairs when connecting the network elements.\\
-   
-   \item  [/F5/] An instance of the desired model should be available after the call to \texttt{nest.Create}.\\
-   
-\end{labeling}
-
-These five requirements are the base specifications for designing the \emph{JIT}. The first requirement states that the user should not explicitly import the \emph{PyNESTML} module in the script, and thus the \emph{JIT} will decide if it is required to use the code generator or not. The second specification requires that enabling or disabling the \emph{JIT} mechanism must not involve a complex a process and thus must be done in a single a call and the user should not worry about how it is done in the background. The third requirement ensures that there is no huge deviation in the script between having the \emph{JIT} enabled or disabled. The fourth requirement tackles the problem that when co-generating a neuron with a synapse, both the name of the neuron and the synapse will be changed, and therefore the user has to manually use the new names when using the co-generated models in the \texttt{nest.Connect} function in \emph{PyNEST}. Retrieving information about the model's instance or setting its attributes after creation is very common in most of the simulation scripts, and that must be granted by the sixth requirement that the model should be available after calling the \texttt{nest.Create} function.
-
-\subsubsection*{PyNEST module:}
+\subsection*{Simulation script requirements}
 
 \begin{labeling}{alligator}
-   \item  [/F7/] Running the simulation with or without \emph{JIT} should not affect the network behavior.\\
-   
-     
-   \item [/F8/] The \emph{JIT} mechanism should not affect the workflow of \emph{PyNEST}.\\
-   
-   \item  [/F9/] Functions signature of \emph{PyNEST} should not be changed when using \emph{JIT}.\\
-
+   \item[/F1/] The user script should not explicitly import the \emph{PyNESTML} module.
+   \item[/F2/] Enabling and disabling the JIT mechanism must be possible in a straightforward way.
+   \item[/F3/] Having JIT compilation enabled, the simulation script should not differ a lot from the original script.
+   \item[/F4/]\label{req:F4} The user should not explicitly specify the name of the neuron/synapse pairs when connecting the network elements.
+   \item[/F5/] An model instance should be available after the call to \texttt{Create()}.
 \end{labeling}
 
-When creating instances of the model, the user can assign random values to some parameters of the model. Thus, when running the simulation script with \emph{JIT}, the result must be correct and \emph{reproducible}, and for that  case, the seventh requirement ensures the correctness of the \emph{JIT} module. The eight requirement emphasizes that \emph{PyNEST} should be completely independent and unaware of the existence of the \emph{JIT} module. The last requirement is a bit similar to the seventh requirement, and it states that  \emph{PyNEST}  should not have its functions signature adjusted to make \emph{JIT} work.
+These five requirements consitute the basic specifications for designing the JIT mechanism. The first requirement states that the user should not explicitly import the \emph{PyNESTML} module in the script, and thus the JIT mechanism itself will decide if the code generator is required or not, or at which point in time it will import it. The second requirement requires that enabling or disabling the JIT mechanism must not be a complex process. The best way to fulfill this is to only have a single a call in Python without any further user interaction. The third requirement ensures that there is no huge deviation between a script that has the JIT mechanism enabled and one that has it disabled. The fourth requirement addresses the problem that when co-generating a neuron togther with a synapse model, the names of both will be changed and the user has to manually use the new names when establishing connections that involve the co-generated models. Retrieving information about the model instances or setting their attributes after creation is very common in most of the simulation scripts, and must be granted to fulfill the sixth requirement, which states that the model should be available right after calling the \texttt{Create()} function.
 
+\subsection*{PyNEST module requirements}
 
-With all these requirements coming from the user level script and \emph{PyNEST}, we came out with two approaches that satisfy all these requirements with each has its own drawbacks which will be discussed in the following section.
+\begin{labeling}{alligator}
+   \item[/F7/] Running the simulation with or without the JIT mechanism should not affect the network behavior.
+   \item[/F8/] The JIT mechanism should not affect the workflow of PyNEST.
+   \item[/F9/] Function signatures of the PyNEST high-level API should not be changed when using the JIT mechanism.
+\end{labeling}
 
-\section{JIT Tool: The Two Approaches}
+When creating instances of the model, the user can parametrize it using values drawn from a specified random distribution. When running the simulation script with the JIT mechanism enabled, the result must be correct and \emph{reproducible}. The seventh requirement thus ensures the correctness of the JIT module. The eightth requirement emphasizes that PyNEST should be completely independent and unaware of the existence of the JIT module, while the last requirement is postulates that the signatures of PyNEST API functions should not be changed in order to ease the implementation of the JIT mechanism.
 
-With respect to the given requirements in the previous section, we have thought of two different approaches to fulfilling those specifications, with each having different drawbacks that make us accept only of these approaches to implement.
+Based on these requirements coming from the user level simulation script and the PyNEST module, we have designed two complementary approaches that would satisfy all requirements. The benefits and drawbacks of the two designs will be discussed in the following section.
 
-\subsection{The Code Static Analysis}
+\section{Approach 1: Static code analysis}
 
-The first approach was to design a static analysis tool that examines the simulation script before running it. The tool analyzes the script against a set of defined rules and decides if the code requires some rearrangement of the function calls in \emph{PyNEST}. More importantly, it predicts the expected amount of memory needed to allocate it beforehand. 
-
-This solution suffers from different problems. Usually, any simulation script can be split into different phases, as depicted in \ref{fig:simulation_steps}. Each script starts with creating instances of any arbitrary model known as nodes, then the user may modify the parameters of these nodes. In the case when the user sets the parameters of the model to be generated from a distribution function, he may also want to inspect those chosen values before connecting the nodes creating the network. The Edges of the network may also be assigned  a random value and thus, before simulating the whole network, the user can inspect the state of the network before and after stimulating the network by checking the initial set values and observing their changes during the simulation. The tool does not really bring a lot of optimization features, as in the most cases there is not a lot of happening between the creation of nodes and connecting them and the nodes must be directly available after calling the \texttt{Create} function. One other problem, allocating memory for future nodes is not really supported by the \emph{NestKernel} which makes the tool useless in that case. Additionally, rearranging the script violates the requirement that the simulation script must not be changed. The rearranging must also satisfy the \emph{reproducibility} requirement (F7), and thus it may not always be possible to control the order of the creation of some nodes, which might make the behavior of the produced script with the code analysis tool deviate from the original simulation script.
-
-\vspace{0.5cm}
-
+The first design idea was to create a \emph{static code analysis} tool that would examine the simulation script before actually running it. The tool would analyze the script against a set of defined rules and decide if the code requires a rearrangement of function calls in PyNEST. In addition, it would extract the parameters of the \texttt{Create()} and \texttt{Connect()} function calls and predict the expected amount of memory needed, so that the required storage could be allocated before actually creating the nodes.
 
 \begin{figure}[ht!]
     \centering
 
-\tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
-
+\tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt
+\scalebox{0.5}{
+  
 \begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
 %uncomment if require: \path (0,799); %set diagram left start at 0, and has height of 799
 
-%Shape: Circle [id:dp27651862623914725] 
+%Shape: Circle [id:dp27651862623914725]
 \draw  [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ][line width=2.25]  (26,78.4) .. controls (26,62.16) and (39.16,49) .. (55.4,49) .. controls (71.64,49) and (84.8,62.16) .. (84.8,78.4) .. controls (84.8,94.64) and (71.64,107.8) .. (55.4,107.8) .. controls (39.16,107.8) and (26,94.64) .. (26,78.4) -- cycle ;
-%Rounded Rect [id:dp7282659276986263] 
+%Rounded Rect [id:dp7282659276986263]
 \draw  [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ][line width=2.25]  (129,64) .. controls (129,59.58) and (132.58,56) .. (137,56) -- (252.3,56) .. controls (256.72,56) and (260.3,59.58) .. (260.3,64) -- (260.3,88) .. controls (260.3,92.42) and (256.72,96) .. (252.3,96) -- (137,96) .. controls (132.58,96) and (129,92.42) .. (129,88) -- cycle ;
-%Rounded Rect [id:dp47624918039252084] 
+%Rounded Rect [id:dp47624918039252084]
 \draw  [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ][line width=2.25]  (324,62) .. controls (324,57.58) and (327.58,54) .. (332,54) -- (534.8,54) .. controls (539.22,54) and (542.8,57.58) .. (542.8,62) -- (542.8,86) .. controls (542.8,90.42) and (539.22,94) .. (534.8,94) -- (332,94) .. controls (327.58,94) and (324,90.42) .. (324,86) -- cycle ;
-%Shape: Diamond [id:dp35876690900505914] 
+%Shape: Diamond [id:dp35876690900505914]
 \draw  [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ][line width=2.25]  (430.8,167) -- (503.8,241) -- (430.8,315) -- (357.8,241) -- cycle ;
-%Rounded Rect [id:dp527637097767216] 
+%Rounded Rect [id:dp527637097767216]
 \draw  [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ][line width=2.25]  (332,370) .. controls (332,365.58) and (335.58,362) .. (340,362) -- (522.8,362) .. controls (527.22,362) and (530.8,365.58) .. (530.8,370) -- (530.8,394) .. controls (530.8,398.42) and (527.22,402) .. (522.8,402) -- (340,402) .. controls (335.58,402) and (332,398.42) .. (332,394) -- cycle ;
-%Rounded Rect [id:dp3401618625400282] 
+%Rounded Rect [id:dp3401618625400282]
 \draw  [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ][line width=2.25]  (352,449) .. controls (352,444.58) and (355.58,441) .. (360,441) -- (502.8,441) .. controls (507.22,441) and (510.8,444.58) .. (510.8,449) -- (510.8,473) .. controls (510.8,477.42) and (507.22,481) .. (502.8,481) -- (360,481) .. controls (355.58,481) and (352,477.42) .. (352,473) -- cycle ;
-%Rounded Rect [id:dp3943666133910868] 
+%Rounded Rect [id:dp3943666133910868]
 \draw  [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ][line width=2.25]  (44.8,449) .. controls (44.8,444.58) and (48.38,441) .. (52.8,441) -- (274.8,441) .. controls (279.22,441) and (282.8,444.58) .. (282.8,449) -- (282.8,473) .. controls (282.8,477.42) and (279.22,481) .. (274.8,481) -- (52.8,481) .. controls (48.38,481) and (44.8,477.42) .. (44.8,473) -- cycle ;
-%Rounded Rect [id:dp7256122135221656] 
+%Rounded Rect [id:dp7256122135221656]
 \draw  [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ][line width=2.25]  (111,531) .. controls (111,526.58) and (114.58,523) .. (119,523) -- (211.8,523) .. controls (216.22,523) and (219.8,526.58) .. (219.8,531) -- (219.8,555) .. controls (219.8,559.42) and (216.22,563) .. (211.8,563) -- (119,563) .. controls (114.58,563) and (111,559.42) .. (111,555) -- cycle ;
-%Rounded Rect [id:dp5937426008692417] 
+%Rounded Rect [id:dp5937426008692417]
 \draw  [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ][line width=2.25]  (55,629) .. controls (55,624.58) and (58.58,621) .. (63,621) -- (267.8,621) .. controls (272.22,621) and (275.8,624.58) .. (275.8,629) -- (275.8,653) .. controls (275.8,657.42) and (272.22,661) .. (267.8,661) -- (63,661) .. controls (58.58,661) and (55,657.42) .. (55,653) -- cycle ;
-%Shape: Circle [id:dp6422531264539151] 
+%Shape: Circle [id:dp6422531264539151]
 \draw  [color={rgb, 255:red, 65; green, 117; blue, 5 }  ,draw opacity=1 ][line width=2.25]  (357,638.4) .. controls (357,622.16) and (370.16,609) .. (386.4,609) .. controls (402.64,609) and (415.8,622.16) .. (415.8,638.4) .. controls (415.8,654.64) and (402.64,667.8) .. (386.4,667.8) .. controls (370.16,667.8) and (357,654.64) .. (357,638.4) -- cycle ;
-%Straight Lines [id:da45299673120981465] 
+%Straight Lines [id:da45299673120981465]
 \draw [line width=1.5]    (84.8,78.4) -- (124.8,78.59) ;
 \draw [shift={(127.8,78.6)}, rotate = 180.27] [color={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=1.5]    (14.21,-4.28) .. controls (9.04,-1.82) and (4.3,-0.39) .. (0,0) .. controls (4.3,0.39) and (9.04,1.82) .. (14.21,4.28)   ;
-%Straight Lines [id:da7350379896053278] 
+%Straight Lines [id:da7350379896053278]
 \draw [line width=1.5]    (259.8,74) -- (321.8,73.81) ;
 \draw [shift={(324.8,73.8)}, rotate = 179.82] [color={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=1.5]    (14.21,-4.28) .. controls (9.04,-1.82) and (4.3,-0.39) .. (0,0) .. controls (4.3,0.39) and (9.04,1.82) .. (14.21,4.28)   ;
-%Straight Lines [id:da48742271792213954] 
+%Straight Lines [id:da48742271792213954]
 \draw [line width=1.5]    (429.8,92.8) -- (430.76,164) ;
 \draw [shift={(430.8,167)}, rotate = 269.23] [color={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=1.5]    (14.21,-4.28) .. controls (9.04,-1.82) and (4.3,-0.39) .. (0,0) .. controls (4.3,0.39) and (9.04,1.82) .. (14.21,4.28)   ;
-%Straight Lines [id:da030763451651900642] 
+%Straight Lines [id:da030763451651900642]
 \draw [line width=1.5]    (431.4,321) -- (431.77,356) ;
 \draw [shift={(431.8,359)}, rotate = 269.4] [color={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=1.5]    (14.21,-4.28) .. controls (9.04,-1.82) and (4.3,-0.39) .. (0,0) .. controls (4.3,0.39) and (9.04,1.82) .. (14.21,4.28)   ;
-%Curve Lines [id:da746841578624819] 
+%Curve Lines [id:da746841578624819]
 \draw [line width=1.5]    (503.8,241) .. controls (543.4,211.3) and (569.28,408.79) .. (511.57,450.58) ;
 \draw [shift={(509.8,451.8)}, rotate = 326.98] [color={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=1.5]    (14.21,-4.28) .. controls (9.04,-1.82) and (4.3,-0.39) .. (0,0) .. controls (4.3,0.39) and (9.04,1.82) .. (14.21,4.28)   ;
-%Straight Lines [id:da20240124908584112] 
+%Straight Lines [id:da20240124908584112]
 \draw [line width=1.5]    (430.8,404) -- (430.8,437) ;
 \draw [shift={(430.8,440)}, rotate = 270] [color={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=1.5]    (14.21,-4.28) .. controls (9.04,-1.82) and (4.3,-0.39) .. (0,0) .. controls (4.3,0.39) and (9.04,1.82) .. (14.21,4.28)   ;
-%Straight Lines [id:da5681696199392479] 
+%Straight Lines [id:da5681696199392479]
 \draw [line width=1.5]    (348.8,462) -- (290.8,461.81) ;
 \draw [shift={(287.8,461.8)}, rotate = 0.19] [color={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=1.5]    (14.21,-4.28) .. controls (9.04,-1.82) and (4.3,-0.39) .. (0,0) .. controls (4.3,0.39) and (9.04,1.82) .. (14.21,4.28)   ;
-%Straight Lines [id:da5097999418987831] 
+%Straight Lines [id:da5097999418987831]
 \draw [line width=1.5]    (160.8,485) -- (160.8,519) ;
 \draw [shift={(160.8,522)}, rotate = 270] [color={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=1.5]    (14.21,-4.28) .. controls (9.04,-1.82) and (4.3,-0.39) .. (0,0) .. controls (4.3,0.39) and (9.04,1.82) .. (14.21,4.28)   ;
-%Straight Lines [id:da12364335757200351] 
+%Straight Lines [id:da12364335757200351]
 \draw [line width=1.5]    (161.8,569) -- (161.8,612.8) ;
 \draw [shift={(161.8,615.8)}, rotate = 270] [color={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=1.5]    (14.21,-4.28) .. controls (9.04,-1.82) and (4.3,-0.39) .. (0,0) .. controls (4.3,0.39) and (9.04,1.82) .. (14.21,4.28)   ;
-%Straight Lines [id:da5822936780343748] 
+%Straight Lines [id:da5822936780343748]
 \draw [line width=1.5]    (277.8,639.8) -- (350.8,639.8) ;
 \draw [shift={(353.8,639.8)}, rotate = 180] [color={rgb, 255:red, 0; green, 0; blue, 0 }  ][line width=1.5]    (14.21,-4.28) .. controls (9.04,-1.82) and (4.3,-0.39) .. (0,0) .. controls (4.3,0.39) and (9.04,1.82) .. (14.21,4.28)   ;
 
@@ -123,7 +103,7 @@ This solution suffers from different problems. Usually, any simulation script ca
 % Text Node
 \draw (144,69) node [anchor=north west][inner sep=0.75pt]   [align=left] {{\fontfamily{pcr}\selectfont \textcolor[rgb]{0.25,0.46,0.02}{\textbf{Create Nodes}}}};
 % Text Node
-\draw (350,66) node [anchor=north west][inner sep=0.75pt]   [align=left] {{\fontfamily{pcr}\selectfont \textcolor[rgb]{0.25,0.46,0.02}{\textbf{Set Nodes Attributes}}}};
+\draw (350,66) node [anchor=north west][inner sep=0.75pt]   [align=left] {{\fontfamily{pcr}\selectfont \textcolor[rgb]{0.25,0.46,0.02}{\textbf{Set Node Attributes}}}};
 % Text Node
 \draw (390,220) node [anchor=north west][inner sep=0.75pt]   [align=left] {{\fontfamily{pcr}\selectfont \textcolor[rgb]{0.25,0.46,0.02}{\textbf{Random}}}\\{\fontfamily{pcr}\selectfont \textcolor[rgb]{0.25,0.46,0.02}{\textbf{Attributes?}}}};
 % Text Node
@@ -143,11 +123,10 @@ This solution suffers from different problems. Usually, any simulation script ca
 % Text Node
 \draw (545,232) node [anchor=north west][inner sep=0.75pt]   [align=left] {{\fontfamily{pcr}\selectfont {\large \textbf{\textcolor[rgb]{0.55,0.34,0.16}{No}}}}};
 
-
 \end{tikzpicture}
+}
 
-
-    \caption{The execution workflow of any possible simulation: Any simulation starts by creating any arbitrary number of nodes as instances of the registered models. As models have different attributes, those attributes can be either assigned deterministic or random values. If random values are used, the user can inspect the drawn values and check the current state of the nodes before building the network. Same as the models, creating network can be either deterministic or random, and thus the user can still inspect the topology of the network before running the simulation. Both, the network and the nodes might have different states after running the simulation, and those states might be inspected after the simulation to make conclusion about the network and nodes behavior.}
+    \caption{The execution flow of any possible simulation: All simulations start by creating an arbitrary number of nodes as instances of the registered models. Model attributes can be either assigned deterministic or random values. If random values are used, the user can inspect the drawn values and check the current state of the nodes before building the network. Similarly to the nodes, creating the network by connecting the nodes can be either be a fully deterministic or a random operation (in both the connection parameters and the connectivity itself). The user can inspect the topology of the network before running the simulation. Both, the network and the nodes might have different states after running the simulation, and those states might be inspected after the simulation to draw conclusions about the behavior of the network and its nodes.}
     \label{fig:simulation_steps}
 \end{figure}
 
@@ -158,26 +137,29 @@ This solution suffers from different problems. Usually, any simulation script ca
 %\label{fig:simulation_steps}
 %\end{figure}
 
-The tool also violates the fourth requirement (F4). As analyzing the code only, we can not tell if the \emph{synapse} type involved in creating the connection is a \emph{built-in} synapse or a user's custom defined synapse, and thus the user still  needs to explicitly provide the name of the \emph{synapse} coming from the code generator. 
 
-These violated requirements are very crucial for persevering the correctness of the \emph{JIT} tool, and therefore we discuss  another alternative that might solve these violated specifications.
+Unfortunately, this two-pass approach suffers from a severe problem: Simulation scripts can be split into different phases, as depicted in \autoref{fig:simulation_steps}. Usually they start by creating instances of arbitrary models (the \emph{nodes}) and the user may then modify the parameters of these nodes. In case of parameters drawn from a random distribution, the user may want to inspect the chosen values before connecting the nodes to create the network. Similarly, the parameters of the edges of the network (i.e., the \emph{synapses}) may be assigned randomized values that the user might want to inspect prior to the simulation. Due to the static nature of the proposed tool, it cannot take into account all possible ways a user may modify neuronal or synaptic properties after their creation and thus the tool would not be very flexible.
 
+Rearranging the script to allow for more user flexibility would violate the requirement that the simulation script must not be changed and results must be \emph{reproducible} (\emph{F7}). It may simply not always be possible to control the order of the creation of nodes when function calls get rearranged, which might introduce slight deviations in the script and therefore in the simulation results with the code analysis in place compared to the original simulation script without.
 
-The alternative approach requires understanding the logic behind the simulation script and splitting it into two parts. The first part for the functionalities that do not require \emph{JIT} and the second part those with \emph{JIT}. Even if we have a solution to solve this partition problem, it is obvious that we are again rearranging the code and ending up in violating the \emph{F8} (reproducibility) and \emph{F3} (deviation from original code) requirements.
+The tool also violates \emph{F4}, as we cannot tell if the \emph{synapse} type involved in creating the connection is a \emph{built-in} synapse or a custom defined synapse just by performing a purely static analysis. This would result in a situation, where the user still has to explicitly provide the name of the \emph{synapse} model coming from the code generator.
 
-\subsection{The PyNest Wrapper}
+To prevent the violation of the requirements mentioned above, the logic of the simulation script could be split into two parts: The first part for the functionalities that do not require the analysis tool, the second for those that do. However, even if we would find a solution to this partition problem, it is obvious that we are again rearranging the code and end up violating the requirements \emph{F8} (reproducibility) and \emph{F3} (deviation from original code).
 
-To again understand what is really happening in the simulation script, we have to revisit the \autoref{fig:simulation_steps}. Apart from simulating an empty network or a network with a single node, each simulation script may contain at least two essential functions, ensuring the creation of the network and stimulating it. The first function is the \texttt{nest.Create} function. It takes four parameters, the model's name, the number of instances, the model's parameters and a spatial distribution of the instances. In this section, we are only interested in the first parameter, which is the model's name. After installing a new external model, the \emph{NestKernel} stores these models in an array of models. When creating a new instance of the model, the \emph{NestKernel} searches for the model by its name and once it is found, it creates the required number of instances. A precondition for the \texttt{nest.Create} function to work is to have the models installed and registered in the \emph{NestKernel}.
-
-
-The next function is \texttt{nest.Connect} and it takes five parameters. The \emph{presynaptic} nodes as the \emph{source} nodes, the \emph{postsynaptic} nodes as the \emph{target} nodes, a dictionary specifying the connection rules between source and target, another dictionary for specifying the synapse model and its parameters and finally a boolean indicating if the function should return a \texttt{SynapseCollection} object to inspect the created connections. For the connection part, when using both external neuron and synapse models, the user must explicitly co-generate the neuron and synapse models together, providing the ports mapping through the code generator before installing them.
-
-The idea of this second approach is to create an interface that controls the \emph{real} workflow of \emph{PyNEST} in the background. It is clear that the model's name is sufficient to locate the model in either as \texttt{.nestml} file or in \texttt{.so} library and, depending on the situation, we can either install the model or first generate the model's code, build it and then install it. With this new setup, the user can then stop importing the \emph{PyNESTML} module and explicitly calling the \texttt{nest.Install} function, as both will be done in the background upon calling the \texttt{nest.Create} function. Again, it is important to understand that we are not modifying the \emph{PyNEST} module, we are simply implementing an intermediate interface between the simulation script and the real \emph{PyNEST}, and this new interface should have the same functions available to the simulation script.
+As the static analysis violates some of the crucial requirements for presevering the correctness of simulations we have come up with an alternative approach that should solve the problems of the static analysis tool.
 
 
+\section{Approach 2: PyNEST Wrapper}
 
-This approach works as a \emph{wrapper} around \emph{PyNEST}, as we do not really need to have a wrapper around each \emph{PyNEST} function. It suffices to only choose those \emph{high-level API} functions and intercept their calls and decide either to execute them directly or apply some logic before and after the real function calls or even disable them.  Mathematically described, each function $f$ in \emph{PyNEST} is replaced by one of the following execution paths:
-\begin{align*} 
+As shown in \autoref{fig:simulation_steps} all simulation scripts other than those simulating an empty network or a network with only a single node contain at least two essential functions, namely \texttt{Create()} and \texttt{Connect()}. The first takes four parameters: the model name, the number of instances to be created, the instance parameters and a spatial arrangement for the instances. In this section, we are only interested in the first parameter, the model name. After installing a new external model, the NestKernel stores it in an array of models. When creating a new instance of the model, the NestKernel searches for the model by its name and once it is found, it creates the required number of instances. A precondition for the \texttt{Create()} function to work is thus to have the models installed and registered in the NestKernel.
+
+The second function that is present in all non-trivial simulation scripts is \texttt{Connect()}. Its five parameters are The source nodes, the target nodes, a dictionary specifying the connection pattern to establish between source and target population, a dictionary for specifying the synapse model and its parameters, and finally a Boolean indicating if the function should return a \texttt{SynapseCollection} object to inspect the created connections. When using both external neuron and synapse models in the connection, the user must explicitly co-generate the neuron and synapse models, providing a mapping between neuronal and synaptic variables (called \emph{port map}) to the code generator before installing them.
+
+The idea of the second approach is to create an interface that controls the NESTML workflow behind the scenes of PyNEST function calls. It is clear that the model's name is sufficient to locate the model either as in the \texttt{.nestml} file or in the dynamic library. Depending on the situation, we can then either install the module directly or first generate the model's code, build it and then install it. With this new setup, the user can then stop importing the PyNESTML module and explicitly calling the \texttt{Install()} function, as both will be handled transparently in the background when calling the \texttt{Create()} function. Again, it is important to understand that we are not modifying the PyNEST module, we are simply implementing an intermediate interface between the simulation script and the real PyNEST functions, and this new interface would provide the same functions to the simulation script.
+
+This approach works as a \emph{wrapper} around all of PyNEST so we do not need to have a wrapper around each PyNEST function. It suffices to only choose those \emph{high-level API} functions and intercept their calls and decide either to execute them directly, or apply some logic before and after the real function calls or even disable them altogether. Mathematically described, each function $f$ in PyNEST is replaced by one of the following execution paths:
+
+\begin{align*}
 f \mapsto&\enspace\emptyset\\
 f \mapsto&\enspace f \circ before \\
 f \mapsto&\enspace f \\
@@ -186,18 +168,10 @@ f \mapsto&\enspace after \circ f \circ before\\
 f \mapsto&\enspace g:\enspace \text{\#replace the call of } f \text{ with } g \in \{before, after\}  \\
 \end{align*}
 
+The empty set ($\emptyset$) means that we intercept the function call, but do nothing (the function will be disabled). The functions \texttt{before} and \texttt{after} represent pre-processing and post-processing steps. For example, when creating instances of the model, the \texttt{before} function could search for the model and ensure that the real \texttt{Create()} function will be called without errors. The \texttt{after} function would return the \emph{NodeCollection} object containing the instances of the model. In this scenario, the real \texttt{Create()} would be called inside the \texttt{before} function.
 
-The empty set means that we intercept the function call, but we do nothing (the function will be disabled). The functions \texttt{before} and \texttt{after} refer to a pre-processing and post-processing steps. For example, when creating instances of the model, the \texttt{before} function searches for the model and ensures that the real \texttt{nest.Create} function will be called without errors. The \texttt{after} function returns the \emph{NodeCollection} object containing the instances of the model. In this scenario, the \emph{real} \texttt{nest.Create} is called inside \texttt{before} function, and it is not really being executed directly after the \texttt{before} call. 
+One remaining issue is concerning calls to \texttt{Connect()} and the co-generation of neuron/synapse pairs. Recall that the user must explicitly specify the port connecting both the neuron and the synapse, and this information is handled by the code generator. To tackle this issue and completely remove the use of the code generator in the simulation script, we would have to extend the synapse dictionary object in the \texttt{Connect()} function with a new key referring to the mapping between the neuron and synapse and let the \texttt{before} function processes the dictionary and remove the inserted key before it forwards it to the code generator. Once the co-generation is finished we can then call the real \emph{Connect()} function in PyNEST.
 
-One issue left concerning the \texttt{nest.Connect} call and the co-generation of the neuron and synapse pairs. Recall that the user must explicitly specify the port connecting both the neuron and the synapse, and this information is handled by the code generator. To tackle this issue and remove completely the use of the code generator in the simulation script, we extend the synapse dictionary object in the \texttt{nest.Connect} function with a new key referring to the mapping between the neuron and synapse and then the \texttt{before} function processes the dictionary and removes the inserted key and forward it to the code generator and once the co-generation finished we call the \emph{real} connect function in \emph{PyNEST}.
-
-
-The approach might be simple, but we have a lot of things happening behind the scene, as we are introducing new components that facilitate the logic behind intercepting the \emph{PyNEST} functions calls. All those components should be discussed in the subsequent section by introducing their roles and how they can be used to simplify the \emph{JIT} module and ensures the \emph{reproducibility} of the results (\emph{F7}).
-
-
-More importantly, this solution satisfies all requirements mentioned in the \emph{simulation script}. For the specification from the \emph{PyNEST} module, only the \emph{F9} is slightly violated by extending the \texttt{nest.Connection} function by the wrapper.
-
-
-
+This approach might sound simple at first glance, but a lot has to happen behind the scene, as new components are introduced that facilitate the interception of PyNEST functions calls. All required components are discussed in detail in the subsequent sections by introducing their roles and how they can be used and how they ensure the fulfillment of all functional requirements as layed out above.
 
 \input{src/tex/chapter3/wrapper}
