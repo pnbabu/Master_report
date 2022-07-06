@@ -85,18 +85,61 @@ The second important parameter is the dictionary \texttt{codegen\_opts} which is
 
 PyNESTML can generate code for different target platforms, but for the scope of the thesis, we focus on NEST as the \texttt{target\_platform}. In the scope of the thesis, the remaining parameters are not of importance and do not affect the execution flow. We will thus omit them in all following descriptions.
 
+
+
+\begin{figure}[!]
+    \begin{lstlisting}[language=NESTML, label=lst:neuron_model, caption={A neuron in NESTML is always declared with the \emph{neuron} keyword with providing the name that will be used as reference to model in the simulation. Each neuron may have several blocks defining its behave during the simulation. The \emph{state}, \emph{parameters} blocks hold the model's attributes that can be set before running the simulation. The attributes inside the parameters blocks are invariant during the simulation. The attrbiutes in the state block however are subject to change. The manner how the attributes in the state block may change is defined in the \emph{update} block. The update block defines how the neuron model should behave during each step in the simulation. The \emph{input} block spcified the name of the buffer that should receive the specified input during the simulation. A model written in NESTML can be configured to receive two distinct types of input: spikes and continuous-time values.}]
+neuron izhikevich_model:
+    state:
+        v mV = -65 mV    
+        u real = 0    
+    end
+
+    equations:
+        v' = (.04 * v * v / mV + 5 * v + (140 - u) * mV + (I_e * GOhm)) / ms
+        u' = a * (b * v - u * mV) / (mV * ms)
+    end
+      
+    parameters:
+        a real = .02    
+        b real = .2   
+        c mV = -65 mV   
+        d real = 8.    
+    end
+      
+    input:
+        spikes mV <- spike
+        I_e pA <- continuous
+    end
+      
+    output: spike
+      
+    update:
+        integrate_odes()      
+        # add synaptic current
+        v += spikes      
+        # threshold crossing
+        if v >= 30mV:
+            v = c
+            u += d
+            emit_spike()
+        end    
+    end      
+end
+    \end{lstlisting}
+    \end{figure}
+
+
 A neuron model in NESTML is composed of different blocks and it is depicted in \autoref{lst:neuron_model}. The \texttt{state} block defines a set of state variables and their initial values upon instantiation. These are updated by the equations during the simulation. The \texttt{parameters} block declares a set of variables that are not affected by the model equations and can be considered constants from the simulator point of view, but can be set by the user. The \texttt{internals} block. The block behaves like the \texttt{parameter} block with the only difference that its variables can not be set by the user and their initialization expression can only reference parameters or other internal variables. The \texttt{equation} block specifies the \emph{differential equations} that describe the time evolution of variables in the \texttt{state} block. In the \texttt{update} block, users can describe the steps for updating the state of the neuron instance from one time step to the next during the simulation run and the \texttt{input} and \texttt{output} blocks define the types of the accepted incoming and outgoing signals, respectively. \vspace{1em}
-
-
 
 
 The definition of a synapse model in NESTML is very similiar to defining the neuron model. The only two difference in writing a synapse model starts with giving the \emph{synapse} keyword in the NESTML model instead of the \emph{neuron} keyword. The second difference is in the \emph{update} block. The synapse model does not have an update block, but instead it has an \emph{onReceive} block that is reponsbile for submitting the event from the \emph{input-spike} to the \emph{output-spike}. Everthing else is the same as in the neuron model.
 
 Each neuron model in NESTML is read by a parser and converted to an intermediate representation known as the abstract syntax tree (\emph{AST}). After parsing the model and making sure that the described model is syntactically correct, the generated intermediate representation in the form of the AST undergoes several transformations. Such transformations cover an analysis of the differential equations, processing of the \texttt{update} block and creating \emph{hooks} for solver code from the GNU Scientific Library. After applying these transformations, the AST goes through an optimization step, which includes \emph{constant folding} by eliminating expressions that calculate a value that can already be determined before code execution.
 
-\autoref{fig:pynestml_workflow} summarizes the complete workflow of the code generation in PyNESTML. The process starts by feeding the \texttt{.nestml} file containing the model description to the code generator pipeline. A parsing and a validation steps take place, where the model is checked for syntactic correctness and if it satisfies the code generator rules. Once the checks are complete, the pipeline moves to transforming the model into an intermediate representation in order to target different platforms. The third step is then the actual code generation, which is based on a set of templates written in \emph{Jinja} \hl {citation} providing the implementation of the model in for the desired target platform. The last step in the pipeline controls the compilation and builds the model into a \emph{shared library} that can be loaded at runtime in the NestKernel using the \texttt{Install()} function in PyNEST.
+\autoref{fig:pynestml_workflow} summarizes the complete workflow of the code generation in PyNESTML. The process starts by feeding the \texttt{.nestml} file containing the model description to the code generator pipeline. A parsing and a validation steps take place, where the model is checked for syntactic correctness and if it satisfies the code generator rules. Once the checks are complete, the pipeline moves to transforming the model into an intermediate representation in order to target different platforms. The third step is then the actual code generation, which is based on a set of templates written in \emph{Jinja} \citep{jinja} providing the implementation of the model in for the desired target platform. The last step in the pipeline controls the compilation and builds the model into a \emph{shared library} that can be loaded at runtime in the NestKernel using the \texttt{Install()} function in PyNEST.
 
-\begin{figure}[ht!]
+\begin{figure}[t!]
 \centering
 \includegraphics[width=0.8\textwidth]{src/pic/internal_workflow.png}
 \caption{An overview of the processing workflow in PyNESTML: The process starts by feeding the NESTML models to the code generation pipeline. The first step in the pipeline starts by parsing the models and validating their syntax. Once the first step is completed, the models are transformed from NESTML files to AST objects. The pipeline moves to the next step by transforming the AST objects. The transformations may extend the structure of the AST by introducing new attributes or modifying model attributes. The last step in the pipeline takes the transformed AST object and generates the C++ code for the model by using custom defined templates. If all steps are completed without any failure, the pipeline can compile and build a library from the generated code of the model on request and make it available for the simulation.}
