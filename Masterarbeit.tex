@@ -12,6 +12,8 @@
 \usepackage{pdfpages}
 \usepackage[strict]{changepage}
 \usepackage{url}
+\usepackage{breakurl}
+\usepackage[breaklinks]{hyperref}
 \usepackage{amsmath}
 \usepackage{marvosym}
 \usepackage{hyperref}
@@ -38,6 +40,7 @@
 \def\title{Just-in-time (JIT) compilation for the NEST Simulator to extend the boundaries of neural network sizes on HPC clusters}
 \def\author{Benelhedi, Mohamed Ayssar}
 
+\def\UrlBreaks{\do\/\do-}
 \hypersetup{colorlinks=true, breaklinks=true,
   linkcolor=black, urlcolor=black, citecolor=black,
   pdftitle=\title, pdfauthor=\author}
@@ -56,7 +59,7 @@
 %% setup listings
 \usepackage{listings}
 \usepackage{xcolor}
-
+\definecolor{codegreen}{rgb}{0,0.6,0}
 \lstset{
     numbers=left,
     numberstyle=\tiny,
@@ -73,7 +76,7 @@
     tabsize=2,
     showstringspaces=false,
     basicstyle=\small\ttfamily,
-    morecomment=[l]{//},
+    morecomment=[l][\color{codegreen}]{//},
     morecomment=[s][\itshape]{/**}{*/}
 }
 
@@ -81,17 +84,36 @@
 %% adding the below listed keywords. See 
 %% ftp://ftp.tex.ac.uk/tex-archive/macros/latex/contrib/listings/listings.pdf
 %% for listings documentation
-%\lstdefinelanguage{MontiArc}[]{Java}{
-%  morekeywords={component, port, in, out, inv, package, import, connect, autoconnect}
-%}
+\lstdefinelanguage{NESTML}{
+ morekeywords={neuron, input, equations, update, state, parameters,end, spike, continuous, real, mV, ms},
+}
 
-\definecolor{codegreen}{rgb}{0,0.6,0}
+
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
 
 \lstdefinestyle{jit}{
     backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstdefinestyle{nestml}{
+    %backgroundcolor=\color{backcolour},   
     commentstyle=\color{codegreen},
     keywordstyle=\color{magenta},
     numberstyle=\tiny\color{codegray},
