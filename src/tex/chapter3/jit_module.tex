@@ -32,7 +32,7 @@ These five requirements are the base specifications for designing the JIT tool. 
 \subsubsection*{PyNEST module:}
 
 \begin{labeling}{alligator}
-   \item  [/F7/] Running the simulation with or without JIT should not affect the network behavior.\\
+   \item  [/F7/] Running the simulation with or without JIT should not affect the network behaviour.\\
    
      
    \item [/F8/] The JIT mechanism should not affect the workflow of PyNEST.\\
@@ -162,7 +162,7 @@ The tool also violates the fourth requirement (F4). As analyzing the code only, 
 These violated requirements are very crucial for persevering the correctness of the JIT tool, and therefore we discuss  another alternative that might solve these violated specifications.
 
 
-The alternative approach requires understanding the logic behind the simulation script and splitting it into two parts. The first part for the functionalities that do not require the JIT mechanism and the second part those with the JIT tool controling their workflow. Even if we have a solution to solve this partition problem, it is obvious that we are again rearranging the code and ending up in violating the \emph{F8} (reproducibility) and \emph{F3} (deviation from original code) requirements.
+The alternative approach requires understanding the logic behind the simulation script and splitting it into two parts. The first part for the functionalities that do not require the JIT mechanism and the second part those with the JIT tool controlling their workflow. Even if we have a solution to solve this partition problem, it is obvious that we are again rearranging the code and ending up in violating the \emph{F8} (reproducibility) and \emph{F3} (deviation from original code) requirements.
 
 \subsection{The PyNest Wrapper}
 
