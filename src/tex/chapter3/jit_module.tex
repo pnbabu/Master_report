@@ -63,7 +63,7 @@ This solution suffers from different problems. Usually, any simulation script ca
     \centering
 
 \tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
-
+\scalebox{0.5}{
 \begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
 %uncomment if require: \path (0,799); %set diagram left start at 0, and has height of 799
 
@@ -145,8 +145,7 @@ This solution suffers from different problems. Usually, any simulation script ca
 
 
 \end{tikzpicture}
-
-
+}
     \caption{The execution workflow of any possible simulation: Any simulation starts by creating any arbitrary number of nodes as instances of the registered models. As models have different attributes, those attributes can be either assigned deterministic or random values. If random values are used, the user can inspect the drawn values and check the current state of the nodes before building the network. Same as the models, creating network can be either deterministic or random, and thus the user can still inspect the topology of the network before running the simulation. Both, the network and the nodes might have different states after running the simulation, and those states might be inspected after the simulation to make conclusion about the network and nodes behavior.}
     \label{fig:simulation_steps}
 \end{figure}

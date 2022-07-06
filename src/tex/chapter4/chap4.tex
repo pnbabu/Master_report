@@ -207,7 +207,7 @@ A speedup of $k$ means that we load $k$ elements in the register of the processo
 \begin{figure}[ht!]
 \centering
 \tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
-
+\scalebox{0.7}{
 \begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
 %uncomment if require: \path (0,489); %set diagram left start at 0, and has height of 489
 
@@ -301,7 +301,7 @@ A speedup of $k$ means that we load $k$ elements in the register of the processo
 
 
 \end{tikzpicture}
-
+}
     \caption{Example of SIMD operation: A parallel operation is applied to the single entries of the \emph{Vector A} and \emph{Vector B}. Instead of applying the operation in sequences by iterating over the items, a modern processor with SIMD instructions can execute the operation for $k$ entries in parallel.}
     \label{fig:simd}
 \end{figure}

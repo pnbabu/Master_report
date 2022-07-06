@@ -97,7 +97,7 @@ The Wrapper interface as depicted in \autoref{fig:wrapper_uml} shows the essenti
 
 \begin{figure}[ht!]
 \centering
-\includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{src/pic/wrapper_uml.png}
+\includegraphics[width=0.9\textwidth,height=\textheight,keepaspectratio]{src/pic/wrapper_uml.png}
 \caption{The Wrapper interface: The Wrapper is the interface that controls the workflow of its derived classes. All \texttt{CustomWrapper} classes derived from the \texttt{Wrapper} may implement the \texttt{before, main} and \texttt{after} functions. The \texttt{\_\_wrapper} function is responsible for coordinating between the three main function and calling them in sequence. The static function \texttt{get\_name} specifies the target function or class in PyNEST, and finally the other static function \texttt{wraps\_one} indicates how many \texttt{Wrapper} instances should be created. Additionally, we have the \texttt{ModuleWrapper} that is responsible for creating the \texttt{CustomWrapper} instances and matching them with their target functions in PyNEST.}
 \label{fig:wrapper_uml}
 \end{figure}
@@ -114,6 +114,7 @@ The Wrapper interface on its own does not do a lot for the JIT project, and it r
 
 \tikzset{every picture/.style={line width=0.75pt}} %set default line width to 0.75pt        
 
+\scalebox{0.7}{
 \begin{tikzpicture}[x=0.75pt,y=0.75pt,yscale=-1,xscale=1]
 %uncomment if require: \path (0,519); %set diagram left start at 0, and has height of 519
 
@@ -218,7 +219,7 @@ The Wrapper interface on its own does not do a lot for the JIT project, and it r
 
 
 \end{tikzpicture}
-
+}
 \caption{The implemented \texttt{CustomWrapper} classes derived from the \texttt{Wrapper} interface.}
 \label{fig:wrapper_derived}
 \end{figure}
@@ -1002,6 +1003,7 @@ Two major drawbacks in the implemented solution, that the assigned values to the
 \begin{figure}[ht!]
 %\caption{The code-generation phase}
 \thisfloatpagestyle{empty} 
+
 \begin{lstlisting}[language=Python, label=lst:generating_code, caption={The code-generation phase}]
 n_modules_generated = 0
 def generate_code_for(nestml_synapse_model: str):
