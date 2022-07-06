@@ -24,7 +24,7 @@ We have introduced a new data structure in the \emph{Nestkernel} for handling mo
 
 \subsection*{Performance}
 
-The performance of the \emph{JIT} module without using an external synapse model does not deviate a lot from running the simulation script without \emph{JIT}. However, when using an external custom synapse, we observe a significant difference in the performance. The difference can be explained by the overhead of running twice some steps of the code generation pipeline, maintaining the functionality of the \texttt{NodeCollectionProxy} and finally replacing the network nodes and updating their parameters.
+The performance of the \emph{JIT} module without using an external synapse model does not deviate a lot from running the simulation script without the \emph{JIT} tool. However, when using an external custom synapse, we observe a significant difference in the performance. The difference can be explained by the overhead of running twice some steps of the code generation pipeline, maintaining the functionality of the \texttt{NodeCollectionProxy} and finally replacing the network nodes and updating their parameters.
 
 Even though the \emph{Nestkernel} does not fully support \emph{Vectorization}, we observe that the performance of the \emph{vectorized} model and the \emph{non-vectorized} model are quite similar on average.
 
