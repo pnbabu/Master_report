@@ -1,25 +1,25 @@
 
 \chapter{JIT Module}
-The focus in this chapter is understanding how to make the concept of the \emph{Just-in-time (JIT)} compilation work without directly affecting the workflow of \emph{PyNEST}. As in any software development process, we start by listing the different requirements that the \emph{JIT} approach must fulfil, discussing the different ideas about the design decision and finally showing what possible implications does the new software have on the simulation scripts.
+The focus in this chapter is understanding how to make the concept of the \emph{Just-in-time (JIT)} compilation work without directly affecting the workflow of PyNEST. As in any software development process, we start by listing the different requirements that the JIT approach must fulfil, discussing the different ideas about the design decision and finally showing what possible implications does the new software have on the simulation scripts.
 
  \label{chap:jit}
 \section{Derived Requirements}
-In order to have a concise understanding of the \emph{JIT} mechanism and to really evaluate the correctness of the chosen design, we need to have a list of the different requirements that should facilitate the communication between  the \emph{JIT} tool and \emph{PyNEST} and cover the different scenarios that may appear during the simulation. 
+In order to have a concise understanding of the JIT mechanism and to really evaluate the correctness of the chosen design, we need to have a list of the different requirements that should facilitate the communication between  the JIT tool and PyNEST and cover the different scenarios that may appear during the simulation. 
 \subsection{Functional Requirement}
 
 
 
-Mainly, the \emph{JIT} mechanism should interact with two elements, the \emph{PyNEST} Python module and the simulation script. This interaction puts certain restrictions on how the \emph{JIT} should work, affecting the logic behind writing the simulation scripts and how the \emph{PyNEST} may treat certain models. Therefore, in the following, we list the most important requirements and explain them in details. We start with requirements coming from the simulation script and then those from the \emph{PyNEST} module.
+Mainly, the JIT mechanism should interact with two elements, the PyNEST Python module and the simulation script. This interaction puts certain restrictions on how the JIT should work, affecting the logic behind writing the simulation scripts and how the PyNEST may treat certain models. Therefore, in the following, we list the most important requirements and explain them in details. We start with requirements coming from the simulation script and then those from the PyNEST module.
 
 \subsubsection*{The Simulation Script:}
 
 \begin{labeling}{alligator}
-   \item  [/F1/] The user script should not explicitly import the \emph{PyNESTML} module. \\
+   \item  [/F1/] The user script should not explicitly import the PyNESTML module. \\
    
      
-   \item [/F2/] Enabling and disabling \emph{JIT} must be done in very straightforward way.\\
+   \item [/F2/] Enabling and disabling JIT must be done in very straightforward way.\\
    
-   \item  [/F3/] Having \emph{JIT} enabled, the simulation script should not vary a lot from the original script with \emph{JIT} being disabled.\\
+   \item  [/F3/] Having JIT enabled, the simulation script should not vary a lot from the original script with JIT being disabled.\\
  
    \item  [/F4/]\label{req:F4} The user should not explicitly specify the name of the neuron/synapse pairs when connecting the network elements.\\
    
@@ -27,24 +27,24 @@ Mainly, the \emph{JIT} mechanism should interact with two elements, the \emph{Py
    
 \end{labeling}
 
-These five requirements are the base specifications for designing the \emph{JIT} tool. The first requirement states that the user should not explicitly import the \emph{PyNESTML} module in the script, and thus \emph{JIT} will decide if it is required to use the code generator or not. The second specification requires that enabling or disabling the \emph{JIT} mechanism must not involve a complex a process and thus must be done in a single a call and the user should not worry about how it is done in the background. The third requirement ensures that there is no huge deviation in the script between having the \emph{JIT} tool enabled or disabled. The fourth requirement tackles the problem that when co-generating a neuron with a synapse, both the name of the neuron and the synapse will be changed, and therefore the user has to manually use the new names when using the co-generated models in the \texttt{nest.Connect} function in \emph{PyNEST}. Retrieving information about the model's instance or setting its attributes after creation is very common in most of the simulation scripts, and that must be granted by the sixth requirement that the model should be available after calling the \texttt{nest.Create} function.
+These five requirements are the base specifications for designing the JIT tool. The first requirement states that the user should not explicitly import the PyNESTML module in the script, and thus JIT will decide if it is required to use the code generator or not. The second specification requires that enabling or disabling the JIT mechanism must not involve a complex a process and thus must be done in a single a call and the user should not worry about how it is done in the background. The third requirement ensures that there is no huge deviation in the script between having the JIT tool enabled or disabled. The fourth requirement tackles the problem that when co-generating a neuron with a synapse, both the name of the neuron and the synapse will be changed, and therefore the user has to manually use the new names when using the co-generated models in the \texttt{nest.Connect} function in PyNEST. Retrieving information about the model's instance or setting its attributes after creation is very common in most of the simulation scripts, and that must be granted by the sixth requirement that the model should be available after calling the \texttt{nest.Create} function.
 
 \subsubsection*{PyNEST module:}
 
 \begin{labeling}{alligator}
-   \item  [/F7/] Running the simulation with or without \emph{JIT} should not affect the network behavior.\\
+   \item  [/F7/] Running the simulation with or without JIT should not affect the network behavior.\\
    
      
-   \item [/F8/] The \emph{JIT} mechanism should not affect the workflow of \emph{PyNEST}.\\
+   \item [/F8/] The JIT mechanism should not affect the workflow of PyNEST.\\
    
-   \item  [/F9/] Functions signature of \emph{PyNEST} should not be changed when using \emph{JIT}.\\
+   \item  [/F9/] Functions signature of PyNEST should not be changed when using JIT.\\
 
 \end{labeling}
 
-When creating instances of the model, the user can assign random values to some parameters of the model. Thus, when running the simulation script with \emph{JIT}, the result must be correct and \emph{reproducible}, and for that  case, the seventh requirement ensures the correctness of the \emph{JIT} module. The eight requirement emphasizes that \emph{PyNEST} should be completely independent and unaware of the existence of the \emph{JIT} module. The last requirement is a bit similar to the seventh requirement, and it states that  \emph{PyNEST}  should not have its functions signature adjusted to make the \emph{JIT} tool work.
+When creating instances of the model, the user can assign random values to some parameters of the model. Thus, when running the simulation script with JIT, the result must be correct and \emph{reproducible}, and for that  case, the seventh requirement ensures the correctness of the JIT module. The eight requirement emphasizes that PyNEST should be completely independent and unaware of the existence of the JIT module. The last requirement is a bit similar to the seventh requirement, and it states that  PyNEST  should not have its functions signature adjusted to make the JIT tool work.
 
 
-With all these requirements coming from the user level script and \emph{PyNEST}, we came out with two approaches that satisfy all these requirements with each has its own drawbacks which will be discussed in the following section.
+With all these requirements coming from the user level script and PyNEST, we came out with two approaches that satisfy all these requirements with each has its own drawbacks which will be discussed in the following section.
 
 \section{JIT Tool: The Two Approaches}
 
@@ -52,9 +52,9 @@ With respect to the given requirements in the previous section, we have thought 
 
 \subsection{The Code Static Analysis}
 
-The first approach was to design a static analysis tool that examines the simulation script before running it. The tool analyzes the script against a set of defined rules and decides if the code requires some rearrangement of the function calls in \emph{PyNEST}. More importantly, it predicts the expected amount of memory needed to allocate it beforehand. 
+The first approach was to design a static analysis tool that examines the simulation script before running it. The tool analyzes the script against a set of defined rules and decides if the code requires some rearrangement of the function calls in PyNEST. More importantly, it predicts the expected amount of memory needed to allocate it beforehand. 
 
-This solution suffers from different problems. Usually, any simulation script can be split into different phases, as depicted in \ref{fig:simulation_steps}. Each script starts with creating instances of any arbitrary model known as nodes, then the user may modify the parameters of these nodes. In the case when the user sets the parameters of the model to be generated from a distribution function, he may also want to inspect those chosen values before connecting the nodes creating the network. The Edges of the network may also be assigned  a random value and thus, before simulating the whole network, the user can inspect the state of the network before and after stimulating the network by checking the initial set values and observing their changes during the simulation. The tool does not really bring a lot of optimization features, as in the most cases there is not a lot of happening between the creation of nodes and connecting them and the nodes must be directly available after calling the \texttt{Create} function. One other problem, allocating memory for future nodes is not really supported by the \emph{NestKernel} which makes the tool useless in that case. Additionally, rearranging the script violates the requirement that the simulation script must not be changed. The rearranging must also satisfy the \emph{reproducibility} requirement (F7), and thus it may not always be possible to control the order of the creation of some nodes, which might make the behavior of the produced script with the code analysis tool deviate from the original simulation script.
+This solution suffers from different problems. Usually, any simulation script can be split into different phases, as depicted in \ref{fig:simulation_steps}. Each script starts with creating instances of any arbitrary model known as nodes, then the user may modify the parameters of these nodes. In the case when the user sets the parameters of the model to be generated from a distribution function, he may also want to inspect those chosen values before connecting the nodes creating the network. The Edges of the network may also be assigned  a random value and thus, before simulating the whole network, the user can inspect the state of the network before and after stimulating the network by checking the initial set values and observing their changes during the simulation. The tool does not really bring a lot of optimization features, as in the most cases there is not a lot of happening between the creation of nodes and connecting them and the nodes must be directly available after calling the \texttt{Create} function. One other problem, allocating memory for future nodes is not really supported by the NestKernel which makes the tool useless in that case. Additionally, rearranging the script violates the requirement that the simulation script must not be changed. The rearranging must also satisfy the \emph{reproducibility} requirement (F7), and thus it may not always be possible to control the order of the creation of some nodes, which might make the behavior of the produced script with the code analysis tool deviate from the original simulation script.
 
 \vspace{0.5cm}
 
@@ -158,25 +158,25 @@ This solution suffers from different problems. Usually, any simulation script ca
 %\label{fig:simulation_steps}
 %\end{figure}
 
-The tool also violates the fourth requirement (F4). As analyzing the code only, we can not tell if the \emph{synapse} type involved in creating the connection is a \emph{built-in} synapse or a user's custom defined synapse, and thus the user still  needs to explicitly provide the name of the \emph{synapse} coming from the code generator. 
+The tool also violates the fourth requirement (F4). As analyzing the code only, we can not tell if the \emph{synapse} type involved in creating the connection is a \emph{built-in} synapse or a user's custom defined synapse, and thus the user still  needs to explicitly provide the name of the synapse coming from the code generator. 
 
-These violated requirements are very crucial for persevering the correctness of the \emph{JIT} tool, and therefore we discuss  another alternative that might solve these violated specifications.
+These violated requirements are very crucial for persevering the correctness of the JIT tool, and therefore we discuss  another alternative that might solve these violated specifications.
 
 
-The alternative approach requires understanding the logic behind the simulation script and splitting it into two parts. The first part for the functionalities that do not require the \emph{JIT} mechanism and the second part those with the \emph{JIT} tool controling their workflow. Even if we have a solution to solve this partition problem, it is obvious that we are again rearranging the code and ending up in violating the \emph{F8} (reproducibility) and \emph{F3} (deviation from original code) requirements.
+The alternative approach requires understanding the logic behind the simulation script and splitting it into two parts. The first part for the functionalities that do not require the JIT mechanism and the second part those with the JIT tool controling their workflow. Even if we have a solution to solve this partition problem, it is obvious that we are again rearranging the code and ending up in violating the \emph{F8} (reproducibility) and \emph{F3} (deviation from original code) requirements.
 
 \subsection{The PyNest Wrapper}
 
-To again understand what is really happening in the simulation script, we have to revisit the \autoref{fig:simulation_steps}. Apart from simulating an empty network or a network with a single node, each simulation script may contain at least two essential functions, ensuring the creation of the network and stimulating it. The first function is the \texttt{nest.Create} function. It takes four parameters, the model's name, the number of instances, the model's parameters and a spatial distribution of the instances. In this section, we are only interested in the first parameter, which is the model's name. After installing a new external model, the \emph{NestKernel} stores these models in an array of models. When creating a new instance of the model, the \emph{NestKernel} searches for the model by its name and once it is found, it creates the required number of instances. A precondition for the \texttt{nest.Create} function to work is to have the models installed and registered in the \emph{NestKernel}.
+To again understand what is really happening in the simulation script, we have to revisit the \autoref{fig:simulation_steps}. Apart from simulating an empty network or a network with a single node, each simulation script may contain at least two essential functions, ensuring the creation of the network and stimulating it. The first function is the \texttt{nest.Create} function. It takes four parameters, the model's name, the number of instances, the model's parameters and a spatial distribution of the instances. In this section, we are only interested in the first parameter, which is the model's name. After installing a new external model, the NestKernel stores these models in an array of models. When creating a new instance of the model, the NestKernel searches for the model by its name and once it is found, it creates the required number of instances. A precondition for the \texttt{nest.Create} function to work is to have the models installed and registered in the NestKernel.
 
 
 The next function is \texttt{nest.Connect} and it takes five parameters. The \emph{presynaptic} nodes as the \emph{source} nodes, the \emph{postsynaptic} nodes as the \emph{target} nodes, a dictionary specifying the connection rules between source and target, another dictionary for specifying the synapse model and its parameters and finally a boolean indicating if the function should return a \texttt{SynapseCollection} object to inspect the created connections. For the connection part, when using both external neuron and synapse models, the user must explicitly co-generate the neuron and synapse models together, providing the ports mapping through the code generator before installing them.
 
-The idea of this second approach is to create an interface that controls the \emph{real} workflow of \emph{PyNEST} in the background. It is clear that the model's name is sufficient to locate the model in either as \texttt{.nestml} file or in \texttt{.so} library and, depending on the situation, we can either install the model or first generate the model's code, build it and then install it. With this new setup, the user can then stop importing the \emph{PyNESTML} module and explicitly calling the \texttt{nest.Install} function, as both will be done in the background upon calling the \texttt{nest.Create} function. Again, it is important to understand that we are not modifying the \emph{PyNEST} module, we are simply implementing an intermediate interface between the simulation script and the real \emph{PyNEST}, and this new interface should have the same functions available to the simulation script.
+The idea of this second approach is to create an interface that controls the \emph{real} workflow of PyNEST in the background. It is clear that the model's name is sufficient to locate the model in either as \texttt{.nestml} file or in \texttt{.so} library and, depending on the situation, we can either install the model or first generate the model's code, build it and then install it. With this new setup, the user can then stop importing the PyNESTML module and explicitly calling the \texttt{nest.Install} function, as both will be done in the background upon calling the \texttt{nest.Create} function. Again, it is important to understand that we are not modifying the PyNEST module, we are simply implementing an intermediate interface between the simulation script and the real PyNEST, and this new interface should have the same functions available to the simulation script.
 
 
 
-This approach works as a \emph{wrapper} around \emph{PyNEST}, as we do not really need to have a wrapper around each \emph{PyNEST} function. It suffices to only choose those \emph{high-level API} functions and intercept their calls and decide either to execute them directly or apply some logic before and after the real function calls or even disable them.  Mathematically described, each function $f$ in \emph{PyNEST} is replaced by one of the following execution paths:
+This approach works as a \emph{wrapper} around PyNEST, as we do not really need to have a wrapper around each PyNEST function. It suffices to only choose those \emph{high-level API} functions and intercept their calls and decide either to execute them directly or apply some logic before and after the real function calls or even disable them.  Mathematically described, each function $f$ in PyNEST is replaced by one of the following execution paths:
 \begin{align*} 
 f \mapsto&\enspace\emptyset\\
 f \mapsto&\enspace f \circ before \\
@@ -189,13 +189,13 @@ f \mapsto&\enspace g:\enspace \text{\#replace the call of } f \text{ with } g \i
 
 The empty set means that we intercept the function call, but we do nothing (the function will be disabled). The functions \texttt{before} and \texttt{after} refer to a pre-processing and post-processing steps. For example, when creating instances of the model, the \texttt{before} function searches for the model and ensures that the real \texttt{nest.Create} function will be called without errors. The \texttt{after} function returns the \emph{NodeCollection} object containing the instances of the model. In this scenario, the \emph{real} \texttt{nest.Create} is called inside \texttt{before} function, and it is not really being executed directly after the \texttt{before} call. 
 
-One issue left concerning the \texttt{nest.Connect} call and the co-generation of the neuron and synapse pairs. Recall that the user must explicitly specify the port connecting both the neuron and the synapse, and this information is handled by the code generator. To tackle this issue and remove completely the use of the code generator in the simulation script, we extend the synapse dictionary object in the \texttt{nest.Connect} function with a new key referring to the mapping between the neuron and synapse and then the \texttt{before} function processes the dictionary and removes the inserted key and forward it to the code generator and once the co-generation finished we call the \emph{real} connect function in \emph{PyNEST}.
+One issue left concerning the \texttt{nest.Connect} call and the co-generation of the neuron and synapse pairs. Recall that the user must explicitly specify the port connecting both the neuron and the synapse, and this information is handled by the code generator. To tackle this issue and remove completely the use of the code generator in the simulation script, we extend the synapse dictionary object in the \texttt{nest.Connect} function with a new key referring to the mapping between the neuron and synapse and then the \texttt{before} function processes the dictionary and removes the inserted key and forward it to the code generator and once the co-generation finished we call the \emph{real} connect function in PyNEST.
 
 
-The approach might be simple, but we have a lot of things happening behind the scene, as we are introducing new components that facilitate the logic behind intercepting the \emph{PyNEST} functions calls. All those components should be discussed in the subsequent section by introducing their roles and how they can be used to simplify the \emph{JIT} module and ensures the \emph{reproducibility} of the results (\emph{F7}).
+The approach might be simple, but we have a lot of things happening behind the scene, as we are introducing new components that facilitate the logic behind intercepting the PyNEST functions calls. All those components should be discussed in the subsequent section by introducing their roles and how they can be used to simplify the JIT module and ensures the \emph{reproducibility} of the results (\emph{F7}).
 
 
-More importantly, this solution satisfies all requirements mentioned in the \emph{simulation script}. For the specification from the \emph{PyNEST} module, only the \emph{F9} is slightly violated by extending the \texttt{nest.Connection} function by the wrapper.
+More importantly, this solution satisfies all requirements mentioned in the \emph{simulation script}. For the specification from the PyNEST module, only the \emph{F9} is slightly violated by extending the \texttt{nest.Connection} function by the wrapper.
 
 
 
