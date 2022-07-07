@@ -47,19 +47,19 @@ In the third plot, plot \emph{c}, at the bottom left of the figure, we show the 
 
 \section{Vectoriztation}
 
-As NestKernel does not completely support \emph	{vectorization} yet, we restrict our tests to the direct functions involved with the vectorized the model. We tested both the \texttt{nest.Create} and \texttt{nest.GetStatus} functions. Both experiments share the same configuration, we mainly can either change the number of created nodes and keep the number of threads constant or vice-versa. The experiments are executed with a \emph{Ryzen 7 3700u} processor with four cores and eight threads.
-For the number of the nodes, we have picked \{1, 10, 30, 50,100,300,500,2000,5000,8000,1000\} and for the threads we have \{1, 2, 4, 8, 16, 32\}. Each sub-experiment is run five times, with storing the \emph{Wall} time in a \emph{csv} file containing the runtime of the vectorized and \emph{non-vectorized} model. In each sub-experiment, we have three plots. In the first plot on the left, we show the \emph{max-average-min} runtime of the vectorized model. The middle plot shows the \emph{max-average-min} runtime of the simple \emph{non-vectorized} model. Finlay, the last plot on the most right, overlays the average runtime for both models in a single plot. The \emph{y-axis} in the first two plots shows the values after applying the \emph{logarithmic} function with base 10 on the runtime values, which were stored in microseconds, whereas the values in the last plot are only in microseconds.
+As NestKernel does not completely support \emph	{vectorization} yet, we restrict our tests to the direct functions involved with the vectorized model. We tested both the \texttt{nest.Create} and \texttt{nest.GetStatus} functions. Both experiments share the same configuration, mainly, we can either change the number of created nodes and keep the number of threads constant or vice-versa. The experiments are executed on a \emph{Ryzen 7 3700u} processor with four cores and eight threads.
+For the number of the nodes, we have picked \{1, 10, 30, 50, 100, 300, 500, 2000, 5000, 8000, 1000\} and for the number of threads we have \{1, 2, 4, 8, 16, 32\}. Each sub-experiment is run five times, by storing the \emph{Wall} time in a \emph{csv} file containing the runtime of the \emph{vectorized} and \emph{non-vectorized} model. In each sub-experiment, we have three plots. In the first plot on the left, we show the \emph{max-average-min} runtime of the \emph{vectorized} model. The middle plot shows the \emph{max-average-min} runtime of the simple \emph{non-vectorized} model. Finlay, the last plot on the right, overlays the average runtime for both models in a single plot. The \emph{y-axis} in the first two plots shows the values after applying the \emph{logarithmic} function with base 10 on the runtime values, which are stored in microseconds, whereas the values in the last plot are only in microseconds.
 
 \subsubsection{The Create function}
 
 \subsubsection*{Varying the number of nodes with a constant number of threads}
 
- In the first configuration in testing the \texttt{nest.Create} function, we fix the number of threads and vary the number of nodes. In the  \autoref{fig:threads_1} until \autoref{fig:threads_32}, we show the results of the experiments. For each number of threads, we display the performance of the \texttt{nest.Create} function with the vectorized model against the simple models. 
+ In the first configuration in testing the \texttt{nest.Create} function, we fix the number of threads and vary the number of nodes. From the  \autoref{fig:threads_1} until \autoref{fig:threads_32}, we show the results of the experiments. For each number of threads, we display the performance of the \texttt{nest.Create} function with the vectorized model against the non-vectorized models. 
 
 
-In the \autoref{fig:threads_1}, we observe that both types of models behave the same until reaching a number of nodes larger than 300 ($10^{2.5}$). After that point, the vectorized model starts to become a bit slower on average, but with few microseconds. Another observation is that the min-max area of the vectorized model is a bit fat and gets more narrow after reaching $10^3$, whereas the min-max area is almost always narrow, and it gets more narrow after reaching 300 nodes.
+In the \autoref{fig:threads_1}, we observe that both types of models behave the same until reaching a number of nodes larger than 300 ($10^{2.5}$)\todo{any reasoning for this?}. After that point, the vectorized model starts to become a bit slower on average, but by a few microseconds. Another observation is that the min-max area of the vectorized model is a bit wide and gets more narrow after reaching $10^3$, whereas the min-max area for the non-vectorized model is almost always narrow, and it gets more narrow after reaching 300 nodes \todo{why is this?}.
 
-In the \autoref{fig:threads_2}, we observe the same performance for both types of models, even the \emph{max-min} area looks almost the same. As in the previous experience, the performance of the vectorized model becomes a bit slower after reaching 300 nodes with a few milliseconds in comparison to the simple model. In  \autoref{fig:threads_4} with four threads, we have the same observation as in the  \autoref{fig:threads_2} with two threads.
+In the \autoref{fig:threads_2}, we observe the same performance for both types of models, even the \emph{max-min} area looks almost the same. As in the previous experience, the performance of the vectorized model becomes a bit slower after reaching 300 nodes with a few milliseconds in comparison to the non-vectorized model. In \autoref{fig:threads_4} with four threads, we have the same observation as in the \autoref{fig:threads_2} with two threads.
 
 In the rest of the figures with threads in \{8, 16, 32\}, we observe that the vectorized model gets slower and the gap between both models gets wider but still in the range of a few milliseconds.
 
@@ -73,21 +73,21 @@ In the rest of the figures with threads in \{8, 16, 32\}, we observe that the ve
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{src/pic/thread_2.png}
-    \caption{\textbf{Performance of \texttt{nest.Create} function with the number of threads=2}: The left plot depicts the average performance of the vectorized model. The plot in the model shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the min-max area, and it is depicted in orange and red respectively.}
+    \caption{\textbf{Performance of \texttt{nest.Create} function with the number of threads=2}: The left plot depicts the average performance of the vectorized model. The plot in the middle shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the min-max area, and it is depicted in orange and red respectively.}
     \label{fig:threads_2}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{src/pic/thread_4.png}
-    \caption{\textbf{Performance of \texttt{nest.Create} function with the number of threads=4}: The left plot depicts the average performance of the vectorized model. The plot in the model shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the min-max area, and it is depicted in orange and red respectively.}
+    \caption{\textbf{Performance of \texttt{nest.Create} function with the number of threads=4}: The left plot depicts the average performance of the vectorized model. The plot in the middle shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the min-max area, and it is depicted in orange and red respectively.}
     \label{fig:threads_4}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{src/pic/thread_8.png}
-    \caption{\textbf{Performance of \texttt{nest.Create} function with the number of threads=8}: The left plot depicts the average performance of the vectorized model. The plot in the model shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the min-max area, and it is depicted in orange and red respectively.}
+    \caption{\textbf{Performance of \texttt{nest.Create} function with the number of threads=8}: The left plot depicts the average performance of the vectorized model. The plot in the middle shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the min-max area, and it is depicted in orange and red respectively.}
     \label{fig:threads_8}
 \end{figure}
 
@@ -95,21 +95,21 @@ In the rest of the figures with threads in \{8, 16, 32\}, we observe that the ve
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{src/pic/thread_16.png}
-    \caption{\textbf{Performance of \texttt{nest.Create} function with the number of threads=16}: The left plot depicts the average performance of the vectorized model. The plot in the model shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the min-max area, and it is depicted in orange and red respectively.}
+    \caption{\textbf{Performance of \texttt{nest.Create} function with the number of threads=16}: The left plot depicts the average performance of the vectorized model. The plot in the middle shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the min-max area, and it is depicted in orange and red respectively.}
     \label{fig:threads_16}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{src/pic/thread_32.png}
-    \caption{\textbf{Performance of \texttt{nest.Create} function with the number of threads=32}: The left plot depicts the average performance of the vectorized model. The plot in the model shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the min-max area, and it is depicted in orange and red respectively.}
+    \caption{\textbf{Performance of \texttt{nest.Create} function with the number of threads=32}: The left plot depicts the average performance of the vectorized model. The plot in the middle shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the min-max area, and it is depicted in orange and red respectively.}
     \label{fig:threads_32}
 \end{figure}
 
 \subsubsection*{Varying the number of threads with a constant number of nodes}
 
 
-In general, the plots between the \autoref{fig:nodes_1} and \autoref{fig:nodes_10000} show that the \texttt{nest.Create} function has a consistent behavior. In all the plots, we can observe the discontinuity that happens around the points 4, 8 and 16. At these points the slope changes significantly, and the reason behind it is the processor specification. Recall that we ran the experiments on a four-core processor. In general, the vectorized model is a bit slower than the simple model and the largest difference can be observed in the \autoref{fig:nodes_5000} with 5000 nodes. Compared to the previous experiment with fixed number of threads, the min-max area seems to be more a bit fat, which might implicate that the current average results might be a bit noisy.
+In general, the plots between the \autoref{fig:nodes_1} and \autoref{fig:nodes_10000} show that the \texttt{nest.Create} function has a consistent behavior. In all the plots, we can observe the discontinuity that happens around the points where the number of threads are 4, 8 and 16. At these points the slope changes significantly, and the reason behind it is the processor specification. Recall that we ran the experiments on a four-core processor. In general, the vectorized model is a bit slower than the non-vectorized model and the largest difference can be observed in the \autoref{fig:nodes_5000} with 5000 nodes. Compared to the previous experiment with fixed number of threads, the min-max area seems to be a bit wider, which might implicate that the current average results might be a bit noisy.
 
 \foreach \n in {1, 10, 30, 50, 100, 300, 500, 2000, 5000, 8000, 10000}
 {
@@ -125,28 +125,28 @@ In general, the plots between the \autoref{fig:nodes_1} and \autoref{fig:nodes_1
 
 \subsubsection*{Varying the number of nodes with a constant number of threads}
 
-Even with the \texttt{nest.GetStatus} not fully being optimized to support vectorization, both the vectorized model and the simple one has the same performance, with the vectorized model being slightly better with few microseconds.
+Even with the \texttt{nest.GetStatus} not fully being optimized to support vectorization, both the vectorized model and the non-vectorized one has the same performance, with the vectorized model being slightly better with a few microseconds.
 
 \foreach \n in {2, 4, 8, 16, 32}
 {
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{src/pic/get_thread_\n.png}
-    \caption{\textbf{Performance of \texttt{nest.GetStatus} function with the number of nodes=\n}: The left plot depicts the average performance of the vectorized model. The plot in the model shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the min-max area, and it is depicted in orange and red respectively.}
+    \caption{\textbf{Performance of \texttt{nest.GetStatus} function with the number of nodes=\n}: The left plot depicts the average performance of the vectorized model. The plot in the middle shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the min-max area, and it is depicted in orange and red respectively.}
     \label{fig:get_threads_\n}
 \end{figure}
 }
 
 \subsubsection*{Varying the number of threads with a constant number of nodes}
 
-The \texttt{nest.GetStatus} with varying the number of threads has a very different behavior. In the \autoref{fig:get_nodes_1}, both models have the same direction of variation with the only difference that at $threads=16$ we observe that the vectorized model is becoming a bit faster. The min-max area in both models is also almost the same. With the number of nodes equal to ten in \autoref{fig:get_nodes_10}, we observe that between the points 6 and 16 the vectorized model is significantly faster, but then starting from 16 the vectorized model becomes slower again. In both plots, the min-max area is very noisy.
+The \texttt{nest.GetStatus} with varying the number of threads has a very different behavior. In the \autoref{fig:get_nodes_1}, both models have the same direction of variation with the only difference that at $threads=16$ we observe that the vectorized model is becoming a bit faster. The min-max area in both models is also almost the same. With the number of nodes equal to 10 in \autoref{fig:get_nodes_10}, we observe that between the points 6 and 16 the vectorized model is significantly faster, but then starting from 16 the vectorized model becomes slower again. In both plots, the min-max area is very noisy.
 
 
-In \autoref{fig:get_nodes_30}, both  models have the same behavior, with the vectorized model being a bit faster between the points 3 and  14 and then again after 20. Both min-max areas have almost the same shape. In \autoref{fig:get_nodes_50}, the average performance between the models is significantly different with 1500 microseconds on average. Again, we directly observe the points where the slope of the curves changes. Those points are at position 4, 8 and 16. \autoref{fig:get_nodes_30} with 100 nodes shows also the same observations as in the \autoref{fig:get_nodes_30}.
+In \autoref{fig:get_nodes_30}, both  models have the same behavior, with the vectorized model being a bit faster between the points 3 and 14 and then again after 20. Both min-max areas have almost the same shape. In \autoref{fig:get_nodes_50}, the average performance between the models is significantly different with 1500 microseconds on average \todo{Why is this?}. Again, we directly observe the points where the slope of the curves changes. Those points are at position 4, 8 and 16. \autoref{fig:get_nodes_30} with 100 nodes shows also the same observations as in the \autoref{fig:get_nodes_30}.
 
 In \autoref{fig:get_nodes_300} with 300 nodes, the vectorized model takes almost completely the lead in all thread values, with the only exception between position 6 and 10. Both \autoref{fig:get_nodes_500} and \autoref{fig:get_nodes_2000} respectively with 500 and 2000 nodes show the same observations, where the vectorized model is being faster than the simple model.
 
-Reaching higher number of nodes as in \autoref{fig:get_nodes_5000} with 5000 nodes in \autoref{fig:get_nodes_8000} with 8000 and in \autoref{fig:get_nodes_10000} with 10000 nodes, the vectorized model is either behaving the same as the simple model or performing even better.
+Reaching higher number of nodes as in \autoref{fig:get_nodes_5000} with 5000 nodes in \autoref{fig:get_nodes_8000} with 8000 and in \autoref{fig:get_nodes_10000} with 10000 nodes, the vectorized model is either behaving the same as the simple model or performing even better.\todo{Why?}
 
 
 
@@ -154,7 +154,7 @@ Reaching higher number of nodes as in \autoref{fig:get_nodes_5000} with 5000 nod
 {
 \begin{figure}[ht!]
     \includegraphics[width=\textwidth]{src/pic/get_nodes_\n.png}
-    \caption{\textbf{Performance of \texttt{nest.GetStatus} function with the number of threads=\n}: The left plot depicts the average performance of the vectorized model. The plot in the model shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the min-max area, and it is depicted in orange and red respectively.}
+    \caption{\textbf{Performance of \texttt{nest.GetStatus} function with the number of threads=\n}: The left plot depicts the average performance of the vectorized model. The plot in the middle shows the average performance of the original non-vectorized model in NEST. The last plot in the right overlays the average performance of both models. Additionally, in the first two plots in the left, we show the min-max area, and it is depicted in orange and red respectively.}
     \label{fig:get_nodes_\n}
 \end{figure}
 }
