@@ -852,17 +852,17 @@ The \texttt{Simulate()} method of PyNEST is intercepted by the \texttt{SimulateW
 
 \hl{While enjoyed reading the chapter up to here a lot, I find the example pretty much useless for the reader. The reason for this is that it is 1) a bit too complex for my taste (it uses a lot of modeling concepts that have not been introduced anywhere) and 2) more importantly it is impossible to see the differences between the code parts with and without JIT in the current form of the presentation as different listings. Could you either try to make the listings go side-by-side or look like the diff view for a PR on GitHub where you see deleted lines in red and added lines in green? That would make the changes much more obvious and reduce the number of different listings the reader has to scroll between.}
 
+After the main design concepts and implementation details have been explained, we end this chapter by showing the changes that must be applied at the simulation script level to enable the JIT compilation. For the purpose of the following demonstration, we will use the \emph{STDP windows tutorial} from the official NESTML website \hl{add reference or link} in order to show the adjustments required in a real-world example.
 
-After the main design concepts and implementation details have been explained, we end this chapter by showing the changes that must be applied at the simulation script level to enable the JIT compilation. For the purpose of the following demonstrations, we will use the \emph{STDP windows tutorial} from the official NESTML website in order to show the adjustments required in a real-world example.
-
-The first lines that are affected when using the JIT mechanism are directly at the beginning where modules are imported. While \autoref{lst:imports_without_jit} imports PyNEST and PyNESML and sets the path to the NEST installation, \autoref{lst:imports_with_jit} only requires a single import to make the \texttt{nest} sub-module from the JIT module available. The rest of the import lines stay unchanged.
+The first lines that are affected when using the JIT mechanism are directly at the beginning of the script, where modules are imported. The corresponding code section is shown in \autoref{lst:imports_with_and_without_jit}. While the original script without the JIT mechanism enabled requires us to import both PyNEST and PyNESTML manually, and also to set the path of the NEST installation, the version with JIT compilation activated only requires single import line to make the \texttt{nest} sub-module of the JIT module available. The rest of the import lines stay unchanged.
 
 \begin{figure}[ht!]
 \centering
-\begin{lstlisting}[language=Python, label=lst:imports_without_jit, caption={The Simulation script imports without JIT}]
-import nest
-from pynestml.frontend.pynestml_frontend import generate_nest_target
-NEST_PREFIX = nest.ll_api.sli_func("statusdict/prefix ::")
+\begin{lstlisting}[language=Pydiff, label=lst:imports_with_and_without_jit, caption={The Simulation script imports with and without the JIT mechanism enabled. Lines that are necessary without are shown in red, lines in the new version are shown in green.}]
+- import nest
+- from pynestml.frontend.pynestml_frontend import generate_nest_target
+- NEST_PREFIX = nest.ll_api.sli_func("statusdict/prefix ::")
++ from jit import nest
 
 %matplotlib inline
 import matplotlib as mpl
@@ -876,36 +876,9 @@ import re
 %\label{fig:imports_without_jit}
 \end{figure}
 
-\begin{figure}[ht!]
-\centering
-\begin{lstlisting}[language=Python, label=lst:imports_with_jit, caption={The Simulation script imports with JIT}]
-from jit import nest
+\autoref{lst:generating_code} that takes as parameter the synapse model name. The function retrieves the \emph{nestml} file for the given synapse and also the \emph{nestml} file for the \texttt{iaf\_psc\_delta} neuron model and then triggers the co-code generation for both models together providing the \texttt{post\_ports} that required for connecting the postsynaptic neuron together with the synapse. Finally, once the code generation pipeline finishes, it installs the new library, which makes the specified model available for use in the simulation script and returns the new expected name of the neuron and synapse that both have the \emph{\_\_with\_} infix. Luckily, using JIT we can simply get rid of this huge function and let it completely take care of the models, and their new names. Even the \texttt{nest.Install} function on the line 41 will also be deleted, and only the JIT is responsible for calling it.
 
-%matplotlib inline
-import matplotlib as mpl
-mpl.rcParams['axes.formatter.useoffset'] = False
-import matplotlib.pyplot as plt
-import numpy as np
-import os
-import re
-\end{lstlisting}
-%\caption{The Simulation script imports JIT}
-%\label{fig:imports_with_jit}
-\end{figure}
-
-Secondly, in the NESTML tutorial, we have the \texttt{generate\_code\_for} in \autoref{lst:generating_code} that takes as parameter the synapse model name. The function retrieves the \emph{nestml} file for the given synapse and also the \emph{nestml} file for the \texttt{iaf\_psc\_delta} neuron model and then triggers the co-code generation for both models together providing the \texttt{post\_ports} that required for connecting the postsynaptic neuron together with the synapse. Finally, once the code generation pipeline finishes, it installs the new library, which makes the specified model available for use in the simulation script and returns the new expected name of the neuron and synapse that both have the \emph{\_\_with\_} infix. Luckily, using JIT we can simply get rid of this huge function and let it completely take care of the models, and their new names. Even the \texttt{nest.Install} function on the line 41 will also be deleted, and only the JIT is responsible for calling it.
-
-
-
-Finlay, we reach the part where we have to create the nodes and connect them to build the network. Both the figures \autoref{lst:build_network_with_jit} and \autoref{lst:build_network_without_jit} share the exact the code, apart from a slight difference in the line 44 when calling the \texttt{nest.Connect} function. In the figure \autoref{lst:build_network_with_jit} we add an extra key in the \texttt{syn\_spec} indicating the \emph{post connection ports} between the synapse and the post-neuron. The new key then will be removed from the \texttt{syn\_spec} dictionary and only be used in the code generation pipeline as one of the custom configurations in the \emph{codegen\_opt} in PyNESTML module. The rest of the dictionary is then forwarded to \texttt{ConnectWrapper} to initiate the correct call to the \texttt{nest.Connect} function.
-
-In short, the JIT design and implementation does not affect the workflow of the simulation script and only slight changes are required to be adjusted without a huge intervention from the user.
-
-\section{Summary}
-
-We started the chapter by introducing the relationship between the three main components in this project. The PyNESTML module for generating the code of the external modules, PyNEST as the high level API for creating the nodes of the network and connecting them, and the NestKernel as the core of the simulation that manages its execution and delivers results back to the PyNEST module. After that, we understood the basic workflow between them, we derived the necessary requirements that should be satisfied by the implementation of the JIT mechanism. Finally, we explained the most important components involved in the JIT compilation and how each piece is necessary for intercepting the calls from PyNEST and seamlessly modifying their execution paths, either by adding new functionalities or totally skipping the function and executing something different.
-
-There are still two major drawbacks in the implemented solution. The first is that values assigned as attributes to model instances will be stored twice in the memory. The first version is the one being stored in the \emph{lightweight} version of the model, the second is the copy stored in the real instances of the model once they are available after \texttt{Connect()} and \texttt{Simulate()} has been called. The second drawback is that we are triggering the code generation pipeline twice when trying to connect a post-neuron with an external synapse type. To tackle these two problems, we decided to make the neuron model representations in C++ more flexible and modular so they can be assembled at runtime, instead of writing the whole code and compiling it into one single library. In order to modularize the \texttt{NestKernel} and make it utilize its full potential in this respect, we first need to implement a new data structure for the models that should make the transition between the current version of the models and the modular ones more feasible. In the next chapter, we will thus introduce this new data structure and discuss its strong connection with the topic of modularity.
+\hl{where is this function \texttt{generate\_code\_for\_nestml} used? I think this should be added to the following listing and used there. This way you could also show that a large block of really complicated code goes away using your new mechanism.}
 
 \begin{figure}[ht!]
 %\caption{The code-generation phase}
@@ -964,78 +937,18 @@ def generate_code_for(nestml_synapse_model: str):
 %\label{fig:generating_code}
 \end{figure}
 
-\clearpage
+As most of the code in the simulation is obviously concerned with setting up and running a neuronal simulation, and not with handling code generation, many of the following lines remain unchanged.
 
 
-\begin{figure}[ht!]
-\centering
-%\caption{}
-\begin{lstlisting}[language=Python, label=lst:build_network_without_jit, caption={Creating the network without JIT}]
-def run_network(pre_spike_time, post_spike_time,
-                          neuron_model_name,
-                          synapse_model_name,
-                          resolution=1., # [ms]
-                          delay=1., # [ms]
-                          lmbda=1E-6,
-                          sim_time=None,  # if None, computed from pre and post spike times
-                          synapse_parameters=None,  # optional dictionary passed to the synapse
-                          fname_snip=""):
 
-    nest.set_verbosity("M_WARNING")
-    #nest.set_verbosity("M_ALL")
+Finlay, we reach the part where we have to create the nodes and connect them to build the network. Both the figures \autoref{lst:build_network_with_and_without_jit} and \autoref{lst:build_network_without_jit} share the exact the code, apart from a slight difference in the line 44 when calling the \texttt{nest.Connect} function. In the figure \autoref{lst:build_network_with_jit} we add an extra key in the \texttt{syn\_spec} indicating the \emph{post connection ports} between the synapse and the post-neuron. The new key then will be removed from the \texttt{syn\_spec} dictionary and only be used in the code generation pipeline as one of the custom configurations in the \emph{codegen\_opt} in PyNESTML module. The rest of the dictionary is then forwarded to \texttt{ConnectWrapper} to initiate the correct call to the \texttt{nest.Connect} function.
 
-    nest.ResetKernel()
-    nest.SetKernelStatus({'resolution': resolution})
-
-    wr = nest.Create('weight_recorder')
-    nest.CopyModel(synapse_model_name, "stdp_nestml_rec",
-                {"weight_recorder": wr[0],
-                 "w": 1.,
-                 "delay": delay,
-                 "d": delay,
-                 "receptor_type": 0,
-                 "mu_minus": 0.,
-                 "mu_plus": 0.})
-
-    # create spike_generators with these times
-    pre_sg = nest.Create("spike_generator",
-                         params={"spike_times": [pre_spike_time, sim_time - 10.]})
-    post_sg = nest.Create("spike_generator",
-                          params={"spike_times": [post_spike_time],
-                                  'allow_offgrid_times': True})
-
-    # create parrot neurons and connect spike_generators
-    pre_neuron = nest.Create("parrot_neuron")
-    post_neuron = nest.Create(neuron_model_name)
-
-    spikedet_pre = nest.Create("spike_recorder")
-    spikedet_post = nest.Create("spike_recorder")
-    #mm = nest.Create("multimeter", params={"record_from" : ["V_m"]})
-
-    nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
-    nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-    nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={'synapse_model': 'stdp_nestml_rec'})
-    #nest.Connect(mm, post_neuron)
-
-    nest.Connect(pre_neuron, spikedet_pre)
-    nest.Connect(post_neuron, spikedet_post)
-
-    nest.Simulate(sim_time)
-
-    # rest is retrieving results from spikes
-    ...
-
-\end{lstlisting}
-%\label{fig:build_network_without_jit}
-\end{figure}
-
-\clearpage
 
 \begin{figure}[ht!]
 \centering
 %\caption{Creating the network with JIT}
 
-\begin{lstlisting}[language=Python, label=lst:build_network_with_jit, caption={Creating the network with JIT}]
+\begin{lstlisting}[language=Pydiff, label=lst:build_network_with_and_without_jit, caption={Creating the network with and without the JIT mechanism enabled. Color coding as in \autoref{lst:imports_with_and_without_jit}}]
 def run_network(pre_spike_time, post_spike_time,
                           neuron_model_name,
                           synapse_model_name,
@@ -1079,7 +992,8 @@ def run_network(pre_spike_time, post_spike_time,
 
     nest.Connect(pre_sg, pre_neuron, "one_to_one", syn_spec={"delay": 1.})
     nest.Connect(post_sg, post_neuron, "one_to_one", syn_spec={"delay": 1., "weight": 9999.})
-    nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={'synapse_model': 'stdp_nestml_rec', "post_ports": ["post_spikes"]})
+-    nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={'synapse_model': 'stdp_nestml_rec'})
++    nest.Connect(pre_neuron, post_neuron, "all_to_all", syn_spec={'synapse_model': 'stdp_nestml_rec', "post_ports": ["post_spikes"]})
     #nest.Connect(mm, post_neuron)
 
     nest.Connect(pre_neuron, spikedet_pre)
@@ -1093,5 +1007,11 @@ def run_network(pre_spike_time, post_spike_time,
 \end{lstlisting}
 %\label{fig:build_network_with_jit}
 \end{figure}
+
+\section{Summary}
+
+We started the chapter by introducing the relationship between the three main components in this project. The PyNESTML module for generating the code of the external modules, PyNEST as the high level API for creating the nodes of the network and connecting them, and the NestKernel as the core of the simulation that manages its execution and delivers results back to the PyNEST module. After that, we understood the basic workflow between them, we derived the necessary requirements that should be satisfied by the implementation of the JIT mechanism. Finally, we explained the most important components involved in the JIT compilation and how each piece is necessary for intercepting the calls from PyNEST and seamlessly modifying their execution paths, either by adding new functionalities or totally skipping the function and executing something different.
+
+There are still two major drawbacks in the implemented solution. The first is that values assigned as attributes to model instances will be stored twice in the memory. The first version is the one being stored in the \emph{lightweight} version of the model, the second is the copy stored in the real instances of the model once they are available after \texttt{Connect()} and \texttt{Simulate()} has been called. The second drawback is that we are triggering the code generation pipeline twice when trying to connect a post-neuron with an external synapse type. To tackle these two problems, we decided to make the neuron model representations in C++ more flexible and modular so they can be assembled at runtime, instead of writing the whole code and compiling it into one single library. In order to modularize the \texttt{NestKernel} and make it utilize its full potential in this respect, we first need to implement a new data structure for the models that should make the transition between the current version of the models and the modular ones more feasible. In the next chapter, we will thus introduce this new data structure and discuss its strong connection with the topic of modularity.
 
 \cleardoublepage

@@ -80,6 +80,13 @@
     morecomment=[s][\itshape]{/**}{*/}
 }
 
+\definecolor{diffincl}{rgb}{0,0.5,0}
+\definecolor{diffrem}{rgb}{0.5,0,0}
+\lstdefinelanguage{Pydiff}[]{Python}{%
+  morecomment=[f][\bfseries\color{diffincl}]{+\ },
+  morecomment=[f][\bfseries\color{diffrem}]{-\ },
+}
+
 %% defines the listings laguage named 'MontiArc' derived from the language 'Java' 
 %% adding the below listed keywords. See 
 %% ftp://ftp.tex.ac.uk/tex-archive/macros/latex/contrib/listings/listings.pdf
